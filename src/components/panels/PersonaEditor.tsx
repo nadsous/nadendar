@@ -138,7 +138,7 @@ export function PersonaEditor() {
                 <input type="date" className="field" value={p.birthday ?? ""} onChange={(e) => set({ birthday: e.target.value || undefined })} />
               </Field>
             </div>
-            <Field label="Genre">
+            <Field label="Genre" group>
               <div className="grid grid-cols-3 gap-1.5">
                 {GENDERS.map((g) => (
                   <button
@@ -151,7 +151,7 @@ export function PersonaEditor() {
                 ))}
               </div>
             </Field>
-            <Field label="Profil">
+            <Field label="Profil" group>
               <div className="grid grid-cols-6 gap-1">
                 {ROLES.map((r) => (
                   <button key={r.id} onClick={() => set({ role: r.id })} className={clsx("rounded-lg border py-1.5 text-[12px] cursor-pointer", p.role === r.id ? "border-brand/60 bg-sel text-bright" : "border-line text-muted")}>
@@ -160,7 +160,7 @@ export function PersonaEditor() {
                 ))}
               </div>
             </Field>
-            <Field label="Coiffure">
+            <Field label="Coiffure" group>
               <div className="flex flex-wrap gap-1.5">
                 {HAIRS.map((h) => (
                   <button key={h.id} onClick={() => setAv({ hair: h.id })} title={h.label} className={clsx("rounded-xl p-0.5 cursor-pointer transition-transform hover:scale-105", p.avatar.hair === h.id && "ring-2 ring-brand")}>
@@ -169,7 +169,7 @@ export function PersonaEditor() {
                 ))}
               </div>
             </Field>
-            <Field label="Couleur">
+            <Field label="Couleur" group>
               <ColorDots value={p.color} onChange={(color) => set({ color })} />
             </Field>
           </div>

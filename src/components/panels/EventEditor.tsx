@@ -261,7 +261,7 @@ export function EventEditor() {
           </div>
         )}
 
-        <Field label="Participants">
+        <Field label="Participants" group>
           <PersonaPicker value={ev.personaIds} onChange={(personaIds) => set({ personaIds })} />
         </Field>
 
@@ -304,7 +304,7 @@ export function EventEditor() {
           </details>
         )}
 
-        <Field label="Couleur">
+        <Field label="Couleur" group>
           <ColorDots value={ev.color ?? "#fe7146"} onChange={(color) => set({ color })} />
         </Field>
         <Field label="Notes">

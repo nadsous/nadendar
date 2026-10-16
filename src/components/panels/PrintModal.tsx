@@ -7,7 +7,7 @@ import { cap, fmt, WEEK } from "../../lib/dates";
 import { saveExport } from "../../lib/platform";
 import { isOn, pluginById } from "../../plugins/registry";
 import { useApp } from "../../store/store";
-import { PAGE_H, PAGE_W, PrintSheet, type PrintKind, type PrintOptions } from "../print/PrintSheet";
+import { PAGE_H, PAGE_W, PRINT_CATEGORIES, PrintSheet, type PrintKind, type PrintOptions } from "../print/PrintSheet";
 import { Button, Field, Modal, PersonaPicker, Toggle } from "../ui/ui";
 
 const isAndroid = () => /android/i.test(navigator.userAgent);
@@ -25,6 +25,8 @@ export function PrintModal() {
     personaIds: [],
     dark: false,
     showChips: true,
+    // Par discrétion, le cycle n'est pas imprimé tant qu'on ne l'a pas coché.
+    hidden: useApp.getState().settings.printHidden ?? ["cycle"],
   }));
   const [busy, setBusy] = useState<string | null>(null);
   const [printing, setPrinting] = useState(false);
@@ -59,6 +61,11 @@ export function PrintModal() {
   }, [printing]);
 
   const set = (p: Partial<PrintOptions>) => setOpts((o) => ({ ...o, ...p }));
+  const toggleHidden = (id: string) => {
+    const hidden = opts.hidden.includes(id) ? opts.hidden.filter((x) => x !== id) : [...opts.hidden, id];
+    set({ hidden });
+    useApp.getState().setSettings({ printHidden: hidden });
+  };
   const close = () => setUI({ modal: null });
 
   const rangeLabel = useMemo(() => {
@@ -137,7 +144,7 @@ export function PrintModal() {
       >
         <div className="grid gap-5 md:grid-cols-[260px_1fr]">
           <div className="grid content-start gap-4">
-            <Field label="Mise en page">
+            <Field label="Mise en page" group>
               <div className="grid gap-1.5">
                 {kinds.map((k) => (
                   <button
@@ -156,11 +163,26 @@ export function PrintModal() {
                 <span className="w-6 text-right tabular text-bright">{opts.count}</span>
               </div>
             </Field>
-            <Field label="Personas imprimées">
+            <Field label="Personas imprimées" group>
               <PersonaPicker value={opts.personaIds} onChange={(personaIds) => set({ personaIds })} />
             </Field>
+            {/* Pas de <label> englobant : un clic sur le titre ne doit cocher aucune case. */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[12px] font-medium text-muted">Éléments à imprimer</span>
+              <div className="grid gap-1">
+                {PRINT_CATEGORIES.map((c) => {
+                  const on = !opts.hidden.includes(c.id);
+                  return (
+                    <label key={c.id} className={clsx("flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] cursor-pointer", on ? "text-bright" : "text-faint line-through")}>
+                      <input type="checkbox" checked={on} onChange={() => toggleHidden(c.id)} />
+                      {c.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
             <label className="flex items-center gap-3 text-[13px]">
-              <Toggle on={opts.showChips} onChange={(v) => set({ showChips: v })} /> Pastilles (postes, congés, cycle)
+              <Toggle on={opts.showChips} onChange={(v) => set({ showChips: v })} /> Pastilles des personas
             </label>
             <label className="flex items-center gap-3 text-[13px]">
               <Toggle on={opts.dark} onChange={(v) => set({ dark: v })} /> Fond sombre (style Nadendar)

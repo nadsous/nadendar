@@ -29,7 +29,33 @@ export interface PrintOptions {
   personaIds: string[];
   dark: boolean;
   showChips: boolean;
+  /** Catégories à ne pas imprimer (voir PRINT_CATEGORIES). */
+  hidden: string[];
 }
+
+/** Ce qu'on peut retirer d'une impression. */
+export const PRINT_CATEGORIES: { id: string; label: string }[] = [
+  { id: "events", label: "Événements" },
+  { id: "meetings", label: "Réunions & rendez-vous" },
+  { id: "todo", label: "To-do list" },
+  { id: "cycle", label: "Cycle menstruel (règles)" },
+  { id: "work", label: "Postes de travail & congés" },
+  { id: "shopping", label: "Courses & fournitures" },
+  { id: "deliveries", label: "Livraisons" },
+  { id: "gantt", label: "Projets (Gantt)" },
+  { id: "birthdays", label: "Anniversaires" },
+  { id: "holidays", label: "Jours fériés" },
+];
+
+/** Catégorie d'impression d'un élément du calendrier. */
+function itemCategory(it: CalItem): string {
+  if (it.source === "core") return it.event?.kind === "meeting" || it.event?.kind === "appointment" ? "meetings" : "events";
+  if (it.source === "workplan") return "work";
+  return it.source;
+}
+
+/** Catégorie d'une pastille persona (poste/congé ou cycle). */
+const chipCategory = (id: string) => (id.startsWith("cy-") ? "cycle" : id.startsWith("w-") ? "work" : "other");
 
 interface Theme {
   bg: string;
@@ -138,7 +164,7 @@ function MonthPage({ s, plugins, anchor, opts, t }: { s: AppState; plugins: Plug
   const to = addDays(days[days.length - 1], 1);
   // 6 semaines même si le mois en tient en 5 : la grille garde toujours la même géométrie.
   const weeks = days.length / 7;
-  const items = collectItems(days[0], to, s, plugins);
+  const items = collectItems(days[0], to, s, plugins).filter((it) => !opts.hidden.includes(itemCategory(it)));
   const map = perDay(items, to);
   const gridH = PAGE_H - PAD * 2 - 54 - 20 - 26;
   const cellH = Math.floor(gridH / weeks);
@@ -158,8 +184,8 @@ function MonthPage({ s, plugins, anchor, opts, t }: { s: AppState; plugins: Plug
           const k = dayKey(d);
           const list = map.get(k) ?? [];
           const out = !isSameMonth(d, anchor);
-          const hol = holidayOn(d);
-          const chips = opts.showChips ? collectChips(d, s, plugins) : [];
+          const hol = opts.hidden.includes("holidays") ? undefined : holidayOn(d);
+          const chips = opts.showChips ? collectChips(d, s, plugins).filter((c) => !opts.hidden.includes(chipCategory(c.id))) : [];
           const shown = list.length > maxLines ? list.slice(0, maxLines - 1) : list;
           return (
             <div
@@ -203,7 +229,7 @@ function MonthPage({ s, plugins, anchor, opts, t }: { s: AppState; plugins: Plug
 function WeekPage({ s, plugins, monday, opts, t }: { s: AppState; plugins: Plugin[]; monday: Date; opts: PrintOptions; t: Theme }) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
   const to = addDays(monday, 7);
-  const items = collectItems(monday, to, s, plugins);
+  const items = collectItems(monday, to, s, plugins).filter((it) => !opts.hidden.includes(itemCategory(it)));
   const map = perDay(items, to);
   const sunday = days[6];
   const colH = PAGE_H - PAD * 2 - 54 - 26;
@@ -213,8 +239,8 @@ function WeekPage({ s, plugins, monday, opts, t }: { s: AppState; plugins: Plugi
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", height: colH, border: `1px solid ${t.line}`, borderRadius: 8, overflow: "hidden" }}>
         {days.map((d, i) => {
           const list = map.get(dayKey(d)) ?? [];
-          const chips = opts.showChips ? collectChips(d, s, plugins) : [];
-          const hol = holidayOn(d);
+          const chips = opts.showChips ? collectChips(d, s, plugins).filter((c) => !opts.hidden.includes(chipCategory(c.id))) : [];
+          const hol = opts.hidden.includes("holidays") ? undefined : holidayOn(d);
           const shown = list.length > maxLines ? list.slice(0, maxLines - 1) : list;
           return (
             <div key={i} className="print-cell" style={{ padding: 8, overflow: "hidden", background: isWeekend(d) ? t.cellWeekend : t.cell, borderRight: i < 6 ? `1px solid ${t.line}` : undefined, display: "flex", flexDirection: "column", gap: 5 }}>

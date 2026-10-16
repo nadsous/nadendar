@@ -275,4 +275,6 @@ export interface Settings {
   cellSize: CellSize;
   notifications: boolean;
   onboarded: boolean;
+  /** Catégories masquées à l'impression / en PDF. */
+  printHidden?: string[];
 }

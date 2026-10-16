@@ -61,13 +61,18 @@ export function IconBtn({
   );
 }
 
-export function Field({ label, hint, children, className }: { label: string; hint?: string; children: ReactNode; className?: string }) {
+/**
+ * Champ titré. `group` : pour un ensemble de boutons (couleurs, participants…), on n'utilise
+ * pas de <label>, sinon un clic sur le titre activerait le premier bouton.
+ */
+export function Field({ label, hint, children, className, group }: { label: string; hint?: string; children: ReactNode; className?: string; group?: boolean }) {
+  const Tag = group ? "div" : "label";
   return (
-    <label className={clsx("flex flex-col gap-1.5 min-w-0", className)}>
+    <Tag className={clsx("flex flex-col gap-1.5 min-w-0", className)} role={group ? "group" : undefined} aria-label={group ? label : undefined}>
       <span className="text-[12px] font-medium text-muted">{label}</span>
       {children}
       {hint && <span className="text-[11.5px] text-faint">{hint}</span>}
-    </label>
+    </Tag>
   );
 }
 
