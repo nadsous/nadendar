@@ -13,6 +13,7 @@ import {
   PanelLeft,
   PanelRight,
   Plus,
+  Printer,
   Puzzle,
   Search,
   Settings2,
@@ -123,6 +124,7 @@ export function TopBar({ mobile }: { mobile: boolean }) {
       )}
       <div className="pill-group shrink-0">
         <IconBtn icon={Search} label="Rechercher (Ctrl+K)" onClick={() => setUI({ modal: "palette" })} />
+        <IconBtn icon={Printer} label="Imprimer / PDF (Ctrl+P)" onClick={() => setUI({ modal: "print" })} />
         {!mobile && <IconBtn icon={Puzzle} label="Plugins" onClick={() => setUI({ modal: "plugins" })} />}
         <IconBtn icon={Settings2} label="Réglages" onClick={() => setUI({ modal: "settings" })} />
         {!mobile && <IconBtn icon={PanelRight} label="Panneau de droite" active={rightOpen} onClick={() => setSettings({ rightOpen: !rightOpen })} />}

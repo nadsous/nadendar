@@ -12,6 +12,7 @@ import { CommandPalette } from "./components/panels/CommandPalette";
 import { EventEditor } from "./components/panels/EventEditor";
 import { PersonaEditor } from "./components/panels/PersonaEditor";
 import { PluginStore } from "./components/panels/PluginStore";
+import { PrintModal } from "./components/panels/PrintModal";
 import { SettingsModal } from "./components/panels/Settings";
 import { Onboarding } from "./components/Onboarding";
 import { LeftPanel, MobileNav, RightPanel, StatusBar, step, TopBar } from "./components/Shell";
@@ -70,6 +71,12 @@ function useShortcuts() {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         s.setUI({ modal: s.ui.modal === "palette" ? null : "palette" });
+        return;
+      }
+      // Ctrl+P ouvre notre mise en page plutôt que d'imprimer l'interface telle quelle.
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        s.setUI({ modal: "print" });
         return;
       }
       const el = e.target as HTMLElement;
@@ -167,6 +174,7 @@ export default function App() {
       <PluginStore />
       <SettingsModal />
       <CommandPalette />
+      <PrintModal />
     </div>
   );
 }

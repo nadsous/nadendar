@@ -37,3 +37,25 @@ export async function saveBackupFile(json: string): Promise<string | null> {
   URL.revokeObjectURL(a.href);
   return null;
 }
+
+/** Enregistre un fichier exporté (Téléchargements sur PC/Android) puis l'ouvre. */
+export async function saveExport(name: string, bytes: Uint8Array, mime = "application/pdf"): Promise<string | null> {
+  if (isTauri()) {
+    const { invoke } = await import("@tauri-apps/api/core");
+    const path = await invoke<string>("save_export", bytes, { headers: { "x-file-name": encodeURIComponent(name) } });
+    try {
+      const { openPath } = await import("@tauri-apps/plugin-opener");
+      await openPath(path);
+    } catch {
+      // Pas de lecteur PDF : le fichier reste dans Téléchargements.
+    }
+    return path;
+  }
+  const blob = new Blob([bytes as BlobPart], { type: mime });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  return null;
+}

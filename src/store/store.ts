@@ -44,7 +44,7 @@ export interface UIState {
   selectedDay: string | null;
   editingEvent: Partial<CalEvent> | null;
   editingPersona: Partial<Persona> | null;
-  modal: null | "plugins" | "settings" | "palette";
+  modal: null | "plugins" | "settings" | "palette" | "print";
 }
 
 export interface AppState extends Data {

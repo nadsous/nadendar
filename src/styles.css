@@ -203,3 +203,47 @@ input[type="checkbox"] {
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* ── Impression : seules les pages de #print-root sortent, en A4 paysage. ── */
+#print-root {
+  display: none;
+}
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+@media print {
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  body > *:not(#print-root) {
+    display: none !important;
+  }
+  #print-root {
+    display: block !important;
+  }
+  #print-root > div {
+    gap: 0 !important;
+  }
+  .print-page {
+    /* 1123 × 794 px à 96 dpi = 297 × 210 mm : une page écran = une feuille. */
+    width: 297mm !important;
+    height: 210mm !important;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  .print-cell {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

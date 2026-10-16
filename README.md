@@ -26,6 +26,11 @@ lunettes, barbe), une couleur et un profil (adulte, ado, enfant, bébé, senior)
 une pastille *avatar + icône* dit qui travaille et comment : 🌅 matin, 🌇 après-midi, 🌙 nuit,
 ☀️ journée, 💻 télétravail, 🌴 congé…
 
+**Imprimer / PDF** (`Ctrl+P` ou l'icône imprimante) — Mois, Semaine ou Planning de travail, de 1
+à 12 pages, personas au choix, fond clair ou sombre. Chaque page est un A4 paysage à taille fixe :
+les cases ne sont jamais coupées, ce qui ne tient pas est résumé en « +N autres ». Le PDF est
+généré dans l'application (aussi sur Android) et enregistré dans Téléchargements.
+
 ## 🧩 Plugins (activables un par un)
 
 | Plugin | Ce qu'il fait | Lié à |
@@ -53,7 +58,7 @@ une vue, une section de fiche persona, un résumé de jour et un élément de ba
 
 ## ⌨️ Raccourcis
 
-`Ctrl+K` recherche · `T` aujourd'hui · `←/→` précédent/suivant · `M` mois · `S`/`W` semaine ·
+`Ctrl+K` recherche · `Ctrl+P` imprimer / PDF · `T` aujourd'hui · `←/→` précédent/suivant · `M` mois · `S`/`W` semaine ·
 `J`/`D` jour · `A` agenda · `N` nouvel événement
 
 ## 🛠️ Développer

@@ -23,12 +23,61 @@ fn load_backup(app: tauri::AppHandle) -> Result<Option<String>, String> {
     fs::read_to_string(path).map(Some).map_err(|e| e.to_string())
 }
 
+/// Enregistre un fichier exporté (PDF…) dans Téléchargements (ou Documents à défaut).
+#[tauri::command]
+fn save_export(app: tauri::AppHandle, request: tauri::ipc::Request<'_>) -> Result<String, String> {
+    // Corps binaire brut (pas de JSON) ; le nom du fichier arrive dans un en-tête.
+    let tauri::ipc::InvokeBody::Raw(data) = request.body() else {
+        return Err("corps binaire attendu".into());
+    };
+    let name = request
+        .headers()
+        .get("x-file-name")
+        .and_then(|v| v.to_str().ok())
+        .map(|v| percent_decode(v))
+        .unwrap_or_else(|| "nadendar.pdf".into());
+    let path = app.path();
+    let dir = path
+        .download_dir()
+        .or_else(|_| path.document_dir())
+        .or_else(|_| path.app_data_dir())
+        .map_err(|e| e.to_string())?;
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    // Pas de séparateur de chemin dans le nom proposé par l'interface.
+    let safe: String = name
+        .chars()
+        .map(|c| if matches!(c, '/' | '\\' | ':' | '*' | '?' | '"' | '<' | '>' | '|') { '-' } else { c })
+        .collect();
+    let file = dir.join(safe);
+    fs::write(&file, data).map_err(|e| e.to_string())?;
+    Ok(file.display().to_string())
+}
+
+/// Décode un nom encodé avec encodeURIComponent (les en-têtes HTTP sont en ASCII).
+fn percent_decode(s: &str) -> String {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%' && i + 2 < b.len() {
+            if let Ok(v) = u8::from_str_radix(&s[i + 1..i + 3], 16) {
+                out.push(v);
+                i += 3;
+                continue;
+            }
+        }
+        out.push(b[i]);
+        i += 1;
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
-        .invoke_handler(tauri::generate_handler![save_backup, load_backup])
+        .invoke_handler(tauri::generate_handler![save_backup, load_backup, save_export])
         .run(tauri::generate_context!())
         .expect("erreur au lancement de Nadendar");
 }

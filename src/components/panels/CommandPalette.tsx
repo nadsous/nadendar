@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, CalendarPlus, CheckSquare, Puzzle, Search, Settings2, UserPlus, UserRound, type LucideIcon } from "lucide-react";
+import { CalendarDays, CalendarPlus, CheckSquare, Printer, Puzzle, Search, Settings2, UserPlus, UserRound, type LucideIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { cap, fmt, parseLocal } from "../../lib/dates";
 import { useEnabledPlugins } from "../../plugins/registry";
@@ -44,6 +44,7 @@ export function CommandPalette() {
       { id: "day", label: "Vue jour", icon: CalendarDays, run: go("day") },
       { id: "agenda", label: "Vue agenda", icon: CalendarDays, run: go("agenda") },
       ...plugins.filter((p) => p.view).map((p) => ({ id: `v-${p.id}`, label: `Vue ${p.view!.label}`, icon: p.view!.icon, run: go(p.view!.id) })),
+      { id: "print", label: "Imprimer / exporter en PDF", icon: Printer, run: () => setUI({ modal: "print" }) },
       { id: "plugins", label: "Plugins", icon: Puzzle, run: () => setUI({ modal: "plugins" }) },
       { id: "settings", label: "Réglages", icon: Settings2, run: () => setUI({ modal: "settings" }) },
     ];

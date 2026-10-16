@@ -7,6 +7,10 @@
     "core:default",
     "opener:default",
     "opener:allow-open-url",
+    {
+      "identifier": "opener:allow-open-path",
+      "allow": [{ "path": "$DOWNLOAD/**" }, { "path": "$DOCUMENT/**" }, { "path": "$APPDATA/**" }]
+    },
     "notification:default"
   ]
 }
