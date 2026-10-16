@@ -5,7 +5,7 @@ import { useApp } from "../store/store";
 import { MoonGlyph } from "../components/ui/icons";
 import type { Plugin } from "./types";
 
-const MOON_SHORT = ["Nouvelle", "Croissant", "1er quart.", "Gibbeuse", "Pleine", "Gibbeuse", "Dern. quart.", "Croissant"];
+export const MOON_SHORT = ["Nouvelle", "Croissant", "1er quart.", "Gibbeuse", "Pleine", "Gibbeuse", "Dern. quart.", "Croissant"];
 
 function DayDetail({ day }: { day: Date }) {
   const place = useApp((s) => s.settings.place);

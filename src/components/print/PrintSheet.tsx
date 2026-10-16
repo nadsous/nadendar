@@ -4,6 +4,10 @@ import logo from "../../assets/logo.svg";
 import { cap, dayKey, fmt, hhmm, monthGrid, WEEK } from "../../lib/dates";
 import { holidayOn } from "../../lib/holidays";
 import { filled } from "../../lib/colors";
+import { moonOf } from "../../lib/astro";
+import { MoonGlyph } from "../ui/icons";
+import { MOON_SHORT } from "../../plugins/astro";
+import { WeatherIcon } from "../../plugins/weather";
 import { LEAVE_TYPES, SHIFT_TYPES, workOn } from "../../lib/work";
 import { LEAVE_ICONS, SHIFT_ICONS } from "../ui/icons";
 import type { LeaveType } from "../../lib/types";
@@ -45,7 +49,34 @@ export const PRINT_CATEGORIES: { id: string; label: string }[] = [
   { id: "gantt", label: "Projets (Gantt)" },
   { id: "birthdays", label: "Anniversaires" },
   { id: "holidays", label: "Jours fériés" },
+  { id: "moon", label: "Phases de lune" },
+  { id: "weather", label: "Météo (16 prochains jours)" },
 ];
+
+/** Lune et météo du jour, en petit, à droite du numéro. */
+function Sky({ d, s, hidden, t, big }: { d: Date; s: AppState; hidden: string[]; t: Theme; big?: boolean }) {
+  const w = hidden.includes("weather") ? undefined : s.cache.weather?.daily.find((x) => x.date === dayKey(d));
+  const m = hidden.includes("moon") ? undefined : moonOf(d);
+  if (!w && !m) return null;
+  const fs = big ? 10.5 : 9;
+  return (
+    <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, fontSize: fs, color: t.muted, whiteSpace: "nowrap" }}>
+      {w && (
+        <span style={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <WeatherIcon code={w.code} size={big ? 13 : 11} />
+          {Math.round(w.tmax)}°
+        </span>
+      )}
+      {m && (
+        <span style={{ display: "flex", alignItems: "center", gap: 2 }} title={m.name}>
+          <MoonGlyph phase={m.phase} size={big ? 13 : 11} />
+          {/* Nom court seulement les jours de phase principale (pleine, nouvelle, quartiers) ou en grand. */}
+          {(big || m.isKey) && MOON_SHORT[m.index]}
+        </span>
+      )}
+    </span>
+  );
+}
 
 /** Catégorie d'impression d'un élément du calendrier. */
 function itemCategory(it: CalItem): string {
@@ -202,9 +233,10 @@ function MonthPage({ s, plugins, anchor, opts, t }: { s: AppState; plugins: Plug
                 gap: 2,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 4, height: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4, height: 16, minWidth: 0 }}>
                 <span style={{ fontSize: 11.5, fontWeight: 600, color: out ? t.faint : t.text }}>{d.getDate()}</span>
-                {hol && <span style={{ fontSize: 8.5, color: "#e11d48", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{hol}</span>}
+                {hol && <span style={{ fontSize: 8.5, color: "#e11d48", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", minWidth: 0 }}>{hol}</span>}
+                <Sky d={d} s={s} hidden={opts.hidden} t={t} />
               </div>
               {chips.length > 0 && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 2, maxHeight: 14, overflow: "hidden" }}>
@@ -246,7 +278,10 @@ function WeekPage({ s, plugins, monday, opts, t }: { s: AppState; plugins: Plugi
             <div key={i} className="print-cell" style={{ padding: 8, overflow: "hidden", background: isWeekend(d) ? t.cellWeekend : t.cell, borderRight: i < 6 ? `1px solid ${t.line}` : undefined, display: "flex", flexDirection: "column", gap: 5 }}>
               <div>
                 <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", color: t.muted }}>{fmt(d, "EEEE")}</div>
-                <div style={{ fontSize: 20, fontWeight: 650 }}>{d.getDate()}</div>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <span style={{ fontSize: 20, fontWeight: 650 }}>{d.getDate()}</span>
+                  <Sky d={d} s={s} hidden={opts.hidden} t={t} big />
+                </div>
                 {hol && <div style={{ fontSize: 9.5, color: "#e11d48" }}>{hol}</div>}
               </div>
               {chips.length > 0 && (
