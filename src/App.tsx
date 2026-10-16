@@ -155,11 +155,9 @@ export default function App() {
           </motion.aside>
         )}
         <main className="panel relative min-w-0 flex-1 overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.div key={view} initial={{ opacity: 0, scale: 0.995 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.14 }} className="h-full">
+            <motion.div key={view} initial={{ opacity: 0, scale: 0.995 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.14 }} className="h-full">
               {content}
             </motion.div>
-          </AnimatePresence>
           {!onboarded && !hasPersonas && <Onboarding />}
         </main>
         {rightInline && (

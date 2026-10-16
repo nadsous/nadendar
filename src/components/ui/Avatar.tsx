@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { diceUri } from "../../lib/avatars";
 import type { AvatarSpec, Persona } from "../../lib/types";
 
 // Avatars façon Notion : trait noir, aplat de cheveux, fond à la couleur du persona.
@@ -121,6 +122,18 @@ export const AvatarSvg = memo(function AvatarSvg({
   ring?: boolean;
 }) {
   const small = size < 26;
+  // Style DiceBear : rendu SVG local, posé sur un disque à la couleur du persona.
+  if (spec.style && spec.style !== "classic") {
+    return (
+      <span
+        className="inline-block shrink-0 overflow-hidden rounded-full"
+        style={{ width: size, height: size, background: color, ...(ring ? { boxShadow: `0 0 0 2px var(--color-panel), 0 0 0 3.5px ${color}` } : {}) }}
+        aria-hidden
+      >
+        <img src={diceUri(spec.style, spec.seed ?? "nadendar", spec.opts)} width={size} height={size} alt="" draggable={false} className="block h-full w-full" />
+      </span>
+    );
+  }
   return (
     <svg
       width={size}

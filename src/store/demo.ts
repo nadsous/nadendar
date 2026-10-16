@@ -18,16 +18,16 @@ export function loadDemo() {
   const nadia: Persona = {
     id: uid(), name: "Nadia", role: "adulte", color: "#f472b6", job: "Opératrice de production", hourlyRate: 13.8,
     birthday: "1990-" + dayKey(addDays(now, 9)).slice(5),
-    avatar: { gender: "femme", hair: "long", glasses: false, beard: false, skin: 3 },
+    avatar: { gender: "femme", hair: "long", glasses: false, beard: false, skin: 3, style: "notionists", seed: "nadia-k", opts: { beardProbability: 0, glassesProbability: 0 } },
     cycle: { enabled: true, lastStart: k(-10), cycleLength: 28, periodLength: 5, logs: [k(-38)], discreet: false },
   };
   const karim: Persona = {
     id: uid(), name: "Karim", role: "adulte", color: "#38bdf8", job: "Développeur", hourlyRate: 19.5, birthday: "1988-03-14",
-    avatar: { gender: "homme", hair: "court", glasses: true, beard: true, skin: 3 },
+    avatar: { gender: "homme", hair: "court", glasses: true, beard: true, skin: 3, style: "notionists", seed: "karim-k", opts: { beardProbability: 100, glassesProbability: 100 } },
   };
   const ines: Persona = {
     id: uid(), name: "Inès", role: "enfant", color: "#a78bfa", birthday: "2017-" + dayKey(addDays(now, 23)).slice(5),
-    avatar: { gender: "femme", hair: "queue", glasses: false, beard: false, skin: 2 },
+    avatar: { gender: "femme", hair: "queue", glasses: false, beard: false, skin: 2, style: "notionists", seed: "ines-k", opts: { beardProbability: 0, glassesProbability: 0 } },
     school: {
       enabled: true, level: "CM1", establishment: "École Jules Ferry", followHolidays: true,
       timetable: [1, 2, 4, 5].flatMap((wd) => [slot(wd, "08:30", "11:45", "Classe", "#a78bfa"), slot(wd, "13:30", "16:30", "Classe", "#c4b5fd")]),
@@ -35,7 +35,7 @@ export function loadDemo() {
   };
   const yanis: Persona = {
     id: uid(), name: "Yanis", role: "ado", color: "#34d399", birthday: "2013-06-02",
-    avatar: { gender: "homme", hair: "boucle", glasses: false, beard: false, skin: 4 },
+    avatar: { gender: "homme", hair: "boucle", glasses: false, beard: false, skin: 4, style: "notionists", seed: "yanis-k", opts: { beardProbability: 0, glassesProbability: 0 } },
     school: {
       enabled: true, level: "5e", establishment: "Collège Victor Hugo", followHolidays: true,
       timetable: [
@@ -49,7 +49,7 @@ export function loadDemo() {
   };
   const fatima: Persona = {
     id: uid(), name: "Mamie Fatima", role: "senior", color: "#fbbf24", birthday: "1952-" + dayKey(addDays(now, 4)).slice(5),
-    avatar: { gender: "femme", hair: "chignon", glasses: true, beard: false, skin: 3 },
+    avatar: { gender: "femme", hair: "chignon", glasses: true, beard: false, skin: 3, style: "notionists", seed: "fatima-k", opts: { beardProbability: 0, glassesProbability: 100 } },
   };
 
   const personas = [nadia, karim, ines, yanis, fatima];

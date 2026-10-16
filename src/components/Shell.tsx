@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { addDays, addMonths, addWeeks, isSameDay, isSameMonth } from "date-fns";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   CalendarDays,
   CalendarRange,
@@ -125,11 +125,9 @@ function ThemeButton() {
       onClick={() => setSettings({ theme: next.id })}
       className="relative grid h-8 w-8 place-items-center overflow-hidden rounded-lg text-muted hover:bg-elev hover:text-bright cursor-pointer"
     >
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.span key={cur.id} initial={{ y: 14, rotate: -90, opacity: 0 }} animate={{ y: 0, rotate: 0, opacity: 1 }} exit={{ y: -14, rotate: 90, opacity: 0 }} transition={{ duration: 0.18 }}>
+        <motion.span key={cur.id} initial={{ y: 14, rotate: -90, opacity: 0 }} animate={{ y: 0, rotate: 0, opacity: 1 }} transition={{ duration: 0.18 }}>
           <cur.icon size={16} strokeWidth={1.9} />
         </motion.span>
-      </AnimatePresence>
     </button>
   );
 }
@@ -164,18 +162,15 @@ export function TopBar({ mobile }: { mobile: boolean }) {
         </button>
         <IconBtn icon={ChevronRight} label="Suivant" onClick={() => setUI({ cursor: step(view, cursor, 1) })} />
       </div>
-      <AnimatePresence mode="wait">
         <motion.h1
           key={title(view, cursor)}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.16 }}
           className={clsx("min-w-0 truncate px-1 font-semibold tracking-[-0.02em] text-bright", mobile ? "text-[14px]" : "shrink-0 text-[16px]")}
         >
           {title(view, cursor)}
         </motion.h1>
-      </AnimatePresence>
       <span className="flex-1" data-tauri-drag-region />
       {!mobile && view === "month" && (
         <div className="hidden xl:block">
@@ -422,11 +417,9 @@ export function RightPanel() {
           </button>
         ))}
       </div>
-      <AnimatePresence mode="wait">
-        <motion.div key={current} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.15 }} className="flex-1 overflow-y-auto p-3">
+        <motion.div key={current} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.15 }} className="flex-1 overflow-y-auto p-3">
           {P ? <P /> : <DaySummary />}
         </motion.div>
-      </AnimatePresence>
     </div>
   );
 }

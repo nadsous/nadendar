@@ -45,18 +45,15 @@ function CyclingBadge({ badges }: { badges: DayBadge[] }) {
   const b = badges[Math.min(i, badges.length - 1)];
   return (
     <span className="relative hidden shrink-0 items-center overflow-hidden @[96px]:flex" title={badges.map((x) => x.title).join(" · ")}>
-      <AnimatePresence mode="wait" initial={false}>
         <motion.span
           key={b.id}
           className="flex items-center"
           initial={{ y: 9, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -9, opacity: 0 }}
           transition={{ duration: 0.22, ease: "easeOut" }}
         >
           {b.node}
         </motion.span>
-      </AnimatePresence>
     </span>
   );
 }

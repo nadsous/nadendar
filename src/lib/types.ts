@@ -14,8 +14,14 @@ export interface AvatarSpec {
   hair: HairStyle;
   glasses: boolean;
   beard: boolean;
-  /** Teinte de peau, index dans SKINS. */
+  /** Teinte de peau, index dans SKINS (style classique). */
   skin: number;
+  /** Style DiceBear (« notionists »…) ; absent = avatar classique de Nadendar. */
+  style?: string;
+  /** Graine du tirage DiceBear : les parties non choisies en dépendent. */
+  seed?: string;
+  /** Parties choisies à la main (cheveux, yeux, couleurs…). */
+  opts?: Record<string, string | number>;
 }
 
 export type PersonaRole = "adulte" | "ado" | "enfant" | "bebe" | "senior" | "autre";

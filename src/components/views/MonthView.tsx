@@ -301,12 +301,10 @@ function MobileDayList({ dayK, list, chips, badges }: { dayK: string; list: CalI
           <Plus size={16} />
         </button>
       </div>
-      <AnimatePresence mode="wait">
         <motion.div
           key={dayK}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
           className="flex-1 overflow-y-auto px-3 pb-24"
         >
@@ -351,7 +349,6 @@ function MobileDayList({ dayK, list, chips, badges }: { dayK: string; list: CalI
             {!list.length && !chips.length && <p className="py-6 text-center text-[13px] text-faint">Journée libre.</p>}
           </div>
         </motion.div>
-      </AnimatePresence>
     </div>
   );
 }

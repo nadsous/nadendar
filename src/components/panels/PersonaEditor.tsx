@@ -1,23 +1,15 @@
 import clsx from "clsx";
-import { motion } from "framer-motion";
-import { Glasses, Trash2, UserRound } from "lucide-react";
+import { Sparkles, Trash2, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { uid } from "../../lib/dates";
-import type { AvatarSpec, Gender, HairStyle, Persona, PersonaRole } from "../../lib/types";
+import { genderOpts, randomSeed } from "../../lib/avatars";
+import type { AvatarSpec, Gender, Persona, PersonaRole } from "../../lib/types";
 import { useEnabledPlugins } from "../../plugins/registry";
 import { useApp } from "../../store/store";
-import { AvatarSvg, defaultAvatar, SKINS } from "../ui/Avatar";
-import { Button, ColorDots, Field, Modal, PALETTE, Section, Toggle } from "../ui/ui";
+import { defaultAvatar } from "../ui/Avatar";
+import { AvatarCustomizer, AvatarPreview } from "./AvatarEditor";
+import { Button, ColorDots, Field, Modal, PALETTE, Section } from "../ui/ui";
 
-const HAIRS: { id: HairStyle; label: string }[] = [
-  { id: "court", label: "Court" },
-  { id: "mi-long", label: "Mi-long" },
-  { id: "long", label: "Long" },
-  { id: "queue", label: "Queue" },
-  { id: "chignon", label: "Chignon" },
-  { id: "boucle", label: "Bouclé" },
-  { id: "chauve", label: "Rasé" },
-];
 
 const ROLES: { id: PersonaRole; label: string }[] = [
   { id: "adulte", label: "Adulte" },
@@ -39,7 +31,7 @@ export const blankPersona = (n = 0): Persona => ({
   name: "",
   role: "adulte",
   color: PALETTE[(n * 5 + 2) % PALETTE.length],
-  avatar: defaultAvatar("neutre"),
+  avatar: { ...defaultAvatar("neutre"), style: "notionists", seed: randomSeed(), opts: {} },
 });
 
 export function PersonaEditor() {
@@ -109,26 +101,7 @@ export function PersonaEditor() {
     >
       <div className="grid gap-5">
         <div className="grid gap-5 sm:grid-cols-[170px_1fr]">
-          <div className="flex flex-col items-center gap-3">
-            <motion.div key={JSON.stringify(p.avatar) + p.color} initial={{ scale: 0.9, rotate: -4 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 400, damping: 18 }}>
-              <AvatarSvg spec={p.avatar} color={p.color} size={140} />
-            </motion.div>
-            <div className="flex flex-wrap justify-center gap-1.5">
-              {SKINS.map((s, i) => (
-                <button key={s} onClick={() => setAv({ skin: i })} className={clsx("h-5 w-5 rounded-full border border-black/30 cursor-pointer", p.avatar.skin === i && "ring-2 ring-brand ring-offset-2 ring-offset-panel")} style={{ background: s }} aria-label={`Peau ${i + 1}`} />
-              ))}
-            </div>
-            <div className="flex gap-3 text-[12px] text-muted">
-              <label className="flex items-center gap-1.5">
-                <Toggle on={p.avatar.glasses} onChange={(v) => setAv({ glasses: v })} />
-                <Glasses size={14} />
-              </label>
-              <label className="flex items-center gap-1.5">
-                <Toggle on={p.avatar.beard} onChange={(v) => setAv({ beard: v })} />
-                Barbe
-              </label>
-            </div>
-          </div>
+          <AvatarPreview spec={p.avatar} color={p.color} onChange={(avatar) => set({ avatar })} />
           <div className="grid content-start gap-3">
             <div className="grid grid-cols-2 gap-3">
               <Field label="Prénom">
@@ -143,7 +116,11 @@ export function PersonaEditor() {
                 {GENDERS.map((g) => (
                   <button
                     key={g.id}
-                    onClick={() => setAv({ ...defaultAvatar(g.id), skin: p.avatar.skin, glasses: p.avatar.glasses })}
+                    onClick={() =>
+                      p.avatar.style
+                        ? setAv({ gender: g.id, opts: genderOpts(p.avatar.style, g.id, p.avatar.opts ?? {}) })
+                        : setAv({ ...defaultAvatar(g.id), skin: p.avatar.skin, glasses: p.avatar.glasses })
+                    }
                     className={clsx("rounded-lg border py-1.5 text-[12.5px] cursor-pointer", p.avatar.gender === g.id ? "border-brand/60 bg-sel text-bright" : "border-line text-muted")}
                   >
                     {g.label}
@@ -160,20 +137,15 @@ export function PersonaEditor() {
                 ))}
               </div>
             </Field>
-            <Field label="Coiffure" group>
-              <div className="flex flex-wrap gap-1.5">
-                {HAIRS.map((h) => (
-                  <button key={h.id} onClick={() => setAv({ hair: h.id })} title={h.label} className={clsx("rounded-xl p-0.5 cursor-pointer transition-transform hover:scale-105", p.avatar.hair === h.id && "ring-2 ring-brand")}>
-                    <AvatarSvg spec={{ ...p.avatar, hair: h.id }} color={p.color} size={38} />
-                  </button>
-                ))}
-              </div>
-            </Field>
             <Field label="Couleur" group>
               <ColorDots value={p.color} onChange={(color) => set({ color })} />
             </Field>
           </div>
         </div>
+
+        <Section title="Avatar" icon={Sparkles}>
+          <AvatarCustomizer spec={p.avatar} color={p.color} onChange={(avatar) => set({ avatar })} />
+        </Section>
 
         {exists ? (
           plugins.map((pl) => {

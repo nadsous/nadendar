@@ -86,6 +86,15 @@ pnpm icons          # régénère toutes les icônes depuis scripts/make-icon.mj
 **Données** : tout est stocké sur l'appareil. Réglages ▸ Exporter / Importer pour passer du PC au
 téléphone.
 
+## 🎨 Avatars
+
+Avatars générés sur l'appareil avec [DiceBear](https://www.dicebear.com) (MIT), chaque partie
+réglable (cheveux, yeux, bouche, lunettes, barbe, tenue, couleurs…). Styles :
+« Notionists » de Zoish, « Lorelei » de Lisa Wischofsky et « Open Peeps » de Pablo Stanley
+(CC0) ; « Avataaars » de Pablo Stanley (libre d'usage) ; « Adventurer » de Lisa Wischofsky,
+« Personas » de Draftbit, « Avatar Illustration System » de Micah Lanier et « Big Smile »
+d'Ashley Seo (CC BY 4.0).
+
 ## 📦 Pile
 
 Tauri 2 (Rust) · React 19 · TypeScript · Vite · Tailwind CSS 4 · Framer Motion · Zustand ·
