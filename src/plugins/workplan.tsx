@@ -158,7 +158,7 @@ function PlanningView() {
                         title={info ? `${fmt(d, "EEE d MMM")} — ${info.label}` : undefined}
                         onMouseDown={() => setSel({ pid: p.id, a: i, b: i })}
                         onMouseEnter={() => sel && sel.pid === p.id && setSel({ ...sel, b: i })}
-                        className={clsx("border-t border-line p-[3px] cursor-cell", isWeekend(d) && "bg-white/[0.015]")}
+                        className={clsx("border-t border-line p-[3px] cursor-cell", isWeekend(d) && "bg-tint")}
                       >
                         <div
                           className={clsx(

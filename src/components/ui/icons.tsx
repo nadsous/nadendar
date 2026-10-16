@@ -98,7 +98,7 @@ export const MoonGlyph = memo(function MoonGlyph({ phase, size = 14 }: { phase: 
     `A${Math.abs(k).toFixed(2)} ${r} 0 0 ${sweepInner} 12 2Z`;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden className="shrink-0">
-      <circle cx="12" cy="12" r={r} fill={dark} stroke="rgba(255,255,255,0.12)" strokeWidth="0.8" />
+      <circle cx="12" cy="12" r={r} fill={dark} stroke="var(--color-line2)" strokeWidth="0.8" />
       <path d={d} fill={lit} />
     </svg>
   );

@@ -184,7 +184,7 @@ function BudgetView() {
           <div className="rounded-xl border border-line bg-base/50 p-3.5">
             <div className="mb-2 text-[12px] font-medium text-muted">Solde cumulé du mois</div>
             <svg viewBox="0 0 300 74" className="h-24 w-full" preserveAspectRatio="none">
-              <line x1="0" x2="300" y1={zeroY} y2={zeroY} stroke="rgba(255,255,255,0.1)" strokeDasharray="3 3" />
+              <line x1="0" x2="300" y1={zeroY} y2={zeroY} stroke="var(--color-line2)" strokeDasharray="3 3" />
               <motion.polyline initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8 }} points={pts} fill="none" stroke="#fe7146" strokeWidth="2" vectorEffect="non-scaling-stroke" />
             </svg>
           </div>

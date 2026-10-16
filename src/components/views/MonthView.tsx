@@ -118,8 +118,8 @@ export function MonthView() {
                   }}
                   className={clsx(
                     "group relative flex min-h-0 flex-col gap-[3px] overflow-hidden p-1.5 transition-colors cursor-default",
-                    out ? "bg-base/70" : weekend || hol ? "bg-[#18181b]" : "bg-panel",
-                    selected === k && "!bg-[#231a17]",
+                    out ? "bg-base/70" : weekend || hol ? "bg-weekend" : "bg-panel",
+                    selected === k && "!bg-selday",
                     "hover:bg-elev/60",
                   )}
                 >

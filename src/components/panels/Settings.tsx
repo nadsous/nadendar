@@ -1,7 +1,8 @@
-import { Download, MapPin, RotateCcw, Settings2, Sparkles, Upload } from "lucide-react";
+import clsx from "clsx";
+import { Download, MapPin, Monitor, Moon, RotateCcw, Settings2, Sparkles, Sun, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { saveBackupFile } from "../../lib/platform";
-import type { GeoPlace, SchoolZone } from "../../lib/types";
+import type { GeoPlace, SchoolZone, ThemeMode } from "../../lib/types";
 import { searchPlaces } from "../../lib/weather";
 import { exportData, useApp } from "../../store/store";
 import { loadDemo } from "../../store/demo";
@@ -73,6 +74,26 @@ export function SettingsModal() {
           </Field>
         </Section>
         <Section title="Affichage">
+          <div className="grid grid-cols-3 gap-1.5">
+            {(
+              [
+                ["dark", "Sombre", Moon],
+                ["light", "Clair", Sun],
+                ["system", "Système", Monitor],
+              ] as const
+            ).map(([id, label, Icon]) => (
+              <button
+                key={id}
+                onClick={() => setSettings({ theme: id as ThemeMode })}
+                className={clsx(
+                  "flex flex-col items-center gap-1.5 rounded-xl border py-3 text-[12.5px] transition-colors cursor-pointer",
+                  (settings.theme ?? "dark") === id ? "border-brand/60 bg-sel text-bright" : "border-line text-muted hover:text-fg",
+                )}
+              >
+                <Icon size={18} /> {label}
+              </button>
+            ))}
+          </div>
           {(
             [
               ["animations", "Animations"],

@@ -2,6 +2,23 @@
 
 export const isTauri = () => typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
+/** Applique le thème au document et à la fenêtre native (barre de titre, fond au redimensionnement). */
+export async function applyTheme(light: boolean) {
+  const root = document.documentElement;
+  root.classList.toggle("theme-light", light);
+  root.classList.toggle("theme-nads", !light);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", light ? "#f2f2f4" : "#111113");
+  if (!isTauri()) return;
+  try {
+    const { getCurrentWindow } = await import("@tauri-apps/api/window");
+    const w = getCurrentWindow();
+    await w.setTheme(light ? "light" : "dark");
+    await w.setBackgroundColor(light ? "#f2f2f4" : "#111113");
+  } catch {
+    // Non pris en charge sur cette plateforme (Android) : sans conséquence.
+  }
+}
+
 export async function openExternal(url: string) {
   if (isTauri()) {
     const { openUrl } = await import("@tauri-apps/plugin-opener");

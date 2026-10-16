@@ -26,6 +26,9 @@ lunettes, barbe), une couleur et un profil (adulte, ado, enfant, bébé, senior)
 une pastille *avatar + icône* dit qui travaille et comment : 🌅 matin, 🌇 après-midi, 🌙 nuit,
 ☀️ journée, 💻 télétravail, 🌴 congé…
 
+**Thèmes** — sombre (style nads.site), clair, ou celui du système (suivi en direct, barre de
+titre Windows comprise) : icône soleil/lune en haut ou Réglages ▸ Affichage.
+
 **Imprimer / PDF** (`Ctrl+P` ou l'icône imprimante) — Mois, Semaine ou Planning de travail, de 1
 à 12 pages, personas au choix, fond clair ou sombre. Chaque page est un A4 paysage à taille fixe :
 les cases ne sont jamais coupées, ce qui ne tient pas est résumé en « +N autres ». Le PDF est

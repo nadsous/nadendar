@@ -158,7 +158,7 @@ function GanttView() {
             ))}
           </div>
           {/* Week-ends */}
-          {days.map((d, i) => isWeekend(d) && <div key={i} className="absolute bottom-0 top-[46px] bg-white/[0.018]" style={{ left: i * DAY_W, width: DAY_W }} />)}
+          {days.map((d, i) => isWeekend(d) && <div key={i} className="absolute bottom-0 top-[46px] bg-tint" style={{ left: i * DAY_W, width: DAY_W }} />)}
           {/* Aujourd'hui */}
           {todayX >= 0 && todayX <= SPAN * DAY_W && <div className="absolute bottom-0 top-[46px] w-[2px] bg-brand/70" style={{ left: todayX + DAY_W / 2 }} />}
 
@@ -178,7 +178,7 @@ function GanttView() {
                     key={dep + r.t.id}
                     d={`M${x1} ${y1} h8 V${y2} H${x2 - 2}`}
                     fill="none"
-                    stroke={late ? "#f87171" : "rgba(255,255,255,0.28)"}
+                    stroke={late ? "#f87171" : "var(--color-line2)"}
                     strokeWidth="1.5"
                     markerEnd="url(#arrow)"
                   />
@@ -187,7 +187,7 @@ function GanttView() {
             })}
             <defs>
               <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0 0 L10 5 L0 10z" fill="rgba(255,255,255,0.45)" />
+                <path d="M0 0 L10 5 L0 10z" fill="var(--color-muted)" />
               </marker>
             </defs>
           </svg>

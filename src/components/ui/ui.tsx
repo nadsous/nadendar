@@ -106,7 +106,7 @@ export function ColorDots({ value, onChange }: { value: string; onChange: (c: st
           onClick={() => onChange(c)}
           className={clsx(
             "h-6 w-6 rounded-md transition-transform hover:scale-110 cursor-pointer",
-            value === c && "ring-2 ring-offset-2 ring-offset-panel ring-white/80",
+            value === c && "ring-2 ring-offset-2 ring-offset-panel ring-bright/70",
           )}
           style={{ background: c }}
           aria-label={c}

@@ -3,7 +3,7 @@ import { addDays, differenceInMinutes } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { dayKey, hhmm } from "./lib/dates";
-import { notify } from "./lib/platform";
+import { applyTheme, notify } from "./lib/platform";
 import { expand } from "./lib/recurrence";
 import { PLUGINS, useEnabledPlugins } from "./plugins/registry";
 import type { Plugin } from "./plugins/types";
@@ -64,6 +64,19 @@ function useReminders() {
   }, []);
 }
 
+/** Thème : sombre, clair, ou celui du système (suivi en direct). */
+function useTheme() {
+  const mode = useApp((s) => s.settings.theme ?? "dark");
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    const apply = () => applyTheme(mode === "light" || (mode === "system" && mq.matches));
+    apply();
+    if (mode !== "system") return;
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [mode]);
+}
+
 function useShortcuts() {
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
@@ -114,6 +127,7 @@ export default function App() {
   const [sheet, setSheet] = useState<null | "left" | "right">(null);
   useReminders();
   useShortcuts();
+  useTheme();
 
   const pluginView = PLUGINS.find((p) => p.view?.id === view && plugins.includes(p))?.view?.component;
   const content =

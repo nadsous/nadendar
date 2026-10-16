@@ -43,8 +43,40 @@
   --color-ok: #4ade80;
   --color-warn: #fbbf24;
   --color-bad: #f87171;
+  /* Fonds secondaires des cases (week-end, jour choisi) et voile léger. */
+  --color-weekend: #18181b;
+  --color-selday: #231a17;
+  --color-tint: rgba(255, 255, 255, 0.018);
 
   --radius-panel: 14px;
+}
+
+/* Thème clair : mêmes jetons, valeurs inversées ; l'orange du logo reste l'accent. */
+.theme-light {
+  color-scheme: light;
+  --color-base: #f2f2f4;
+  --color-panel: #ffffff;
+  --color-elev: #f1f1f4;
+  --color-elev2: #e6e6ea;
+  --color-line: rgba(20, 20, 30, 0.08);
+  --color-line2: rgba(20, 20, 30, 0.15);
+  --color-fg: #3f3f46;
+  --color-muted: #6b6b75;
+  --color-faint: #a1a1aa;
+  --color-bright: #18181b;
+  --color-brand: #f5622f;
+  --color-brand-deep: #c8411b;
+  --color-on-brand: #ffffff;
+  --color-sel: rgba(245, 98, 47, 0.12);
+  --color-ok: #16a34a;
+  --color-warn: #d97706;
+  --color-bad: #dc2626;
+  --color-weekend: #fafafb;
+  --color-selday: #fff3ee;
+  --color-tint: rgba(20, 20, 30, 0.025);
+}
+.theme-nads {
+  color-scheme: dark;
 }
 
 html,
@@ -55,6 +87,7 @@ body,
 
 body {
   margin: 0;
+  transition: background-color 0.25s ease, color 0.25s ease;
   background: var(--color-base);
   color: var(--color-fg);
   font-family: var(--font-sans);
@@ -81,14 +114,14 @@ textarea,
 /* Barres de défilement discrètes, comme sur nads.site. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: var(--color-line2) transparent;
 }
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-line2);
   border-radius: 8px;
 }
 

@@ -75,6 +75,7 @@ export const EMPTY_DATA: Data = {
 };
 
 export const DEFAULT_SETTINGS: Settings = {
+  theme: "dark",
   place: null,
   schoolZone: "Zone C",
   plugins: {},

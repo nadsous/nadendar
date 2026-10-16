@@ -202,7 +202,7 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
               >
                 {Array.from({ length: 24 }, (_, h) => (
                   <div key={h} className="border-b border-line/60" style={{ height: HOUR }}>
-                    <div className="h-1/2 border-b border-dashed border-white/[0.025]" />
+                    <div className="h-1/2 border-b border-dashed border-line/50" />
                   </div>
                 ))}
                 {shades.map((s, i) => (

@@ -21,7 +21,7 @@ function DayDetail({ day }: { day: Date }) {
     <div className="rounded-xl border border-line bg-base/60 p-3">
       <svg viewBox="0 0 200 60" className="w-full h-14">
         <path d="M10 52 Q100 -32 190 52" fill="none" stroke="rgba(251,191,36,0.35)" strokeWidth="1.5" strokeDasharray="3 3" />
-        <line x1="0" y1="52" x2="200" y2="52" stroke="rgba(255,255,255,0.1)" />
+        <line x1="0" y1="52" x2="200" y2="52" stroke="var(--color-line2)" />
         {isToday && t > 0 && t < 1 && <circle cx={x} cy={y} r="5" fill="#fbbf24" className="now-dot" />}
       </svg>
       <div className="mt-1 grid grid-cols-3 text-[12px]">

@@ -257,8 +257,10 @@ export interface GeoPlace {
 
 export type SchoolZone = "Zone A" | "Zone B" | "Zone C" | "Corse";
 export type ViewId = "month" | "week" | "day" | "agenda" | string;
+export type ThemeMode = "dark" | "light" | "system";
 
 export interface Settings {
+  theme: ThemeMode;
   place: GeoPlace | null;
   schoolZone: SchoolZone;
   plugins: Record<string, boolean>;

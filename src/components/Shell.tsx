@@ -7,6 +7,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Columns3,
+  Monitor,
+  Moon,
   Eye,
   EyeOff,
   List,
@@ -62,6 +64,35 @@ function title(view: string, cursor: number) {
   if (view === "day") return cap(fmt(d, "EEEE d MMMM yyyy"));
   if (view === "agenda") return `À partir du ${fmt(d, "d MMMM")}`;
   return cap(fmt(d, "MMMM yyyy"));
+}
+
+const THEMES = [
+  { id: "dark", label: "Thème sombre", icon: Moon },
+  { id: "light", label: "Thème clair", icon: Sun },
+  { id: "system", label: "Thème du système", icon: Monitor },
+] as const;
+
+/** Bascule sombre → clair → système. */
+function ThemeButton() {
+  const theme = useApp((s) => s.settings.theme ?? "dark");
+  const setSettings = useApp((s) => s.setSettings);
+  const i = THEMES.findIndex((t) => t.id === theme);
+  const cur = THEMES[i < 0 ? 0 : i];
+  const next = THEMES[(Math.max(0, i) + 1) % THEMES.length];
+  return (
+    <button
+      title={`${cur.label} — cliquer pour : ${next.label.toLowerCase()}`}
+      aria-label={cur.label}
+      onClick={() => setSettings({ theme: next.id })}
+      className="relative grid h-8 w-8 place-items-center overflow-hidden rounded-lg text-muted hover:bg-elev hover:text-bright cursor-pointer"
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span key={cur.id} initial={{ y: 14, rotate: -90, opacity: 0 }} animate={{ y: 0, rotate: 0, opacity: 1 }} exit={{ y: -14, rotate: 90, opacity: 0 }} transition={{ duration: 0.18 }}>
+          <cur.icon size={16} strokeWidth={1.9} />
+        </motion.span>
+      </AnimatePresence>
+    </button>
+  );
 }
 
 export function Logo({ size = 26 }: { size?: number }) {
@@ -124,7 +155,8 @@ export function TopBar({ mobile }: { mobile: boolean }) {
       )}
       <div className="pill-group shrink-0">
         <IconBtn icon={Search} label="Rechercher (Ctrl+K)" onClick={() => setUI({ modal: "palette" })} />
-        <IconBtn icon={Printer} label="Imprimer / PDF (Ctrl+P)" onClick={() => setUI({ modal: "print" })} />
+        <ThemeButton />
+        {!mobile && <IconBtn icon={Printer} label="Imprimer / PDF (Ctrl+P)" onClick={() => setUI({ modal: "print" })} />}
         {!mobile && <IconBtn icon={Puzzle} label="Plugins" onClick={() => setUI({ modal: "plugins" })} />}
         <IconBtn icon={Settings2} label="Réglages" onClick={() => setUI({ modal: "settings" })} />
         {!mobile && <IconBtn icon={PanelRight} label="Panneau de droite" active={rightOpen} onClick={() => setSettings({ rightOpen: !rightOpen })} />}
