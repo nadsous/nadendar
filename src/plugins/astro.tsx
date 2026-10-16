@@ -5,6 +5,8 @@ import { useApp } from "../store/store";
 import { MoonGlyph } from "../components/ui/icons";
 import type { Plugin } from "./types";
 
+const MOON_SHORT = ["Nouvelle", "Croissant", "1er quart.", "Gibbeuse", "Pleine", "Gibbeuse", "Dern. quart.", "Croissant"];
+
 function DayDetail({ day }: { day: Date }) {
   const place = useApp((s) => s.settings.place);
   const sun = sunOf(day, place);
@@ -69,9 +71,21 @@ export const astroPlugin: Plugin = {
   links: ["weather", "workplan"],
   badges: (day) => {
     const m = moonOf(day);
-    // Dans les cases, seules les phases principales pour ne pas surcharger.
-    if (!m.isKey) return [];
-    return [{ id: "moon", order: 2, title: m.name, node: <MoonGlyph phase={m.phase} size={13} /> }];
+    // Partage la place de la météo : 1,5 s de lune après 3 s de météo.
+    return [
+      {
+        id: "moon",
+        order: 2,
+        cycle: 1500,
+        title: m.name,
+        node: (
+          <span className="flex items-center gap-0.5">
+            <MoonGlyph phase={m.phase} size={13} />
+            <span className="text-[10px] text-muted whitespace-nowrap">{MOON_SHORT[m.index]}</span>
+          </span>
+        ),
+      },
+    ];
   },
   shade: (day, s) => {
     const sun = sunOf(day, s.settings.place);

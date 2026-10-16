@@ -33,6 +33,8 @@ export interface DayBadge {
   order: number;
   /** Texte au lieu d'une icône seule (ex. nom du férié). */
   wide?: boolean;
+  /** Durée d'affichage (ms) : les badges qui en ont une se partagent une même place, à tour de rôle. */
+  cycle?: number;
 }
 
 /** Pastille persona + icône (postes de travail, congés, cycle…). */

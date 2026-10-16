@@ -11,8 +11,8 @@ import { step } from "../Shell";
 import { holidayOn } from "../../lib/holidays";
 import { collectBadges, collectChips, useCalendarData } from "../../plugins/registry";
 import type { CalItem } from "../../plugins/types";
-import { showPanel, useApp } from "../../store/store";
-import { Badges, Chips, ChipsLabeled, ItemRow, newEventAt, openItem } from "./shared";
+import { useApp } from "../../store/store";
+import { AutoScrollItems, Badges, Chips, ChipsLabeled, ItemRow, newEventAt, openItem } from "./shared";
 import type { CellSize } from "../../lib/types";
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
@@ -201,21 +201,12 @@ export function MonthView() {
                     </div>
                   </div>
                   {large ? <ChipsLabeled chips={deco.chips} /> : <Chips chips={deco.chips} compact={compact} />}
-                  <div className="flex min-h-0 flex-col gap-[2px]">
-                    {list.slice(0, maxItems).map((it) => (
-                      <ItemRow key={it.id} item={it} onOpen={openItem} large={large} />
-                    ))}
-                    {list.length > maxItems && (
-                      <button
-                        className="self-start rounded px-1 text-[11px] font-medium text-muted hover:text-brand cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setUI({ selectedDay: k });
-                          showPanel("right", "today");
-                        }}
-                      >
-                        +{list.length - maxItems} autres
-                      </button>
+                  <div className="flex min-h-0 flex-1 flex-col gap-[2px]">
+                    {grows ? (
+                      list.map((it) => <ItemRow key={it.id} item={it} onOpen={openItem} large={large} />)
+                    ) : (
+                      // Trop d'éléments pour la case : ils défilent tout seuls.
+                      <AutoScrollItems items={list} max={maxItems} onOpen={openItem} />
                     )}
                   </div>
                   <button

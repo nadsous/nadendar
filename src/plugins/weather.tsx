@@ -114,6 +114,7 @@ export const weatherPlugin: Plugin = {
       {
         id: "w",
         order: 1,
+        cycle: 3000,
         title: `${weatherKind(d.code).label} · ${Math.round(d.tmin)}° / ${Math.round(d.tmax)}° · pluie ${d.rain}%`,
         node: (
           <span className="flex items-center gap-0.5">
