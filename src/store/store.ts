@@ -12,6 +12,7 @@ import type {
   Project,
   Settings,
   ShoppingList,
+  ExternalCalendar,
   Todo,
   WorkPattern,
 } from "../lib/types";
@@ -29,6 +30,7 @@ export interface Data {
   meals: Meal[];
   money: Money[];
   projects: Project[];
+  calendars: ExternalCalendar[];
 }
 
 export type Collection = keyof Data;
@@ -74,6 +76,7 @@ export const EMPTY_DATA: Data = {
   meals: [],
   money: [],
   projects: [],
+  calendars: [],
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -157,6 +160,7 @@ export const exportData = () => {
     meals: s.meals,
     money: s.money,
     projects: s.projects,
+    calendars: s.calendars,
   };
   return JSON.stringify(data, null, 2);
 };

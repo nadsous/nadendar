@@ -159,6 +159,23 @@ export interface CalEvent {
   mail?: MailLink;
   recurrence?: Recurrence;
   reminderMin?: number;
+  /** Importé d'un agenda externe (Google, Outlook, iCloud…). */
+  source?: { calId: ID; uid: string };
+}
+
+// ── Agendas externes (.ics) ─────────────────────────────────────────────────
+
+export interface ExternalCalendar {
+  id: ID;
+  name: string;
+  color: string;
+  /** Fichier importé une fois, ou lien iCal resynchronisé régulièrement. */
+  kind: "file" | "url";
+  url?: string;
+  personaId?: ID;
+  lastSync?: string;
+  count: number;
+  error?: string;
 }
 
 // ── Maison ──────────────────────────────────────────────────────────────────

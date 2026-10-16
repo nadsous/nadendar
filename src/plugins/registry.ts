@@ -10,6 +10,7 @@ import { birthdaysPlugin } from "./birthdays";
 import { budgetPlugin } from "./budget";
 import { cyclePlugin } from "./cycle";
 import { deliveriesPlugin } from "./deliveries";
+import { externalPlugin } from "./external";
 import { ganttPlugin } from "./gantt";
 import { holidaysPlugin } from "./holidays";
 import { mailPlugin } from "./mail";
@@ -38,6 +39,7 @@ export const PLUGINS: Plugin[] = [
   budgetPlugin,
   ganttPlugin,
   mailPlugin,
+  externalPlugin,
 ];
 
 export const pluginById = new Map(PLUGINS.map((p) => [p.id, p]));

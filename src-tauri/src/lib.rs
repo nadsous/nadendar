@@ -72,12 +72,32 @@ fn percent_decode(s: &str) -> String {
     String::from_utf8_lossy(&out).into_owned()
 }
 
+/// Télécharge un agenda iCal (lien secret Google, publication Outlook, iCloud…).
+/// Fait côté Rust : depuis le webview, ces serveurs refusent les requêtes (CORS).
+#[tauri::command]
+async fn fetch_ics(url: String) -> Result<String, String> {
+    let url = url.trim().replacen("webcal://", "https://", 1);
+    if !(url.starts_with("https://") || url.starts_with("http://")) {
+        return Err("lien invalide : il doit commencer par https://".into());
+    }
+    tauri::async_runtime::spawn_blocking(move || {
+        let resp = ureq::get(&url)
+            .timeout(std::time::Duration::from_secs(25))
+            .set("User-Agent", "Nadendar/0.1")
+            .call()
+            .map_err(|e| e.to_string())?;
+        resp.into_string().map_err(|e| e.to_string())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
-        .invoke_handler(tauri::generate_handler![save_backup, load_backup, save_export])
+        .invoke_handler(tauri::generate_handler![save_backup, load_backup, save_export, fetch_ics])
         .run(tauri::generate_context!())
         .expect("erreur au lancement de Nadendar");
 }

@@ -56,6 +56,7 @@ généré dans l'application (aussi sur Android) et enregistré dans Télécharg
 | Livraisons | Transporteur, suivi, créneau, qui récupère — **alerte si la personne travaille** sur le créneau, avec les disponibilités de chacun. | Planning |
 | Dépenses & salaires | Revenus/dépenses récurrents, solde cumulé, catégories, **salaire estimé depuis les heures du planning**. | Planning |
 | Diagramme de Gantt | Projets : glisser, étirer, lier les tâches, avancement, affichage dans le calendrier. | To-do |
+| Agendas externes | Google Agenda, Outlook, iCloud : import d'un fichier `.ics` ou abonnement par lien iCal (resynchro toutes les 30 min), couleur et persona par agenda ; export `.ics` de ses événements. | Réunions |
 | Mails liés | Glisser un `.eml` ou coller un mail : date, heure et lien visio détectés → événement ou tâche. | Réunions |
 
 Ajouter un plugin = un fichier dans `src/plugins/` qui implémente l'interface `Plugin`

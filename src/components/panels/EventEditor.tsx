@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { addDays, differenceInMinutes } from "date-fns";
-import { Bell, CalendarDays, Copy, Mail, MapPin, Repeat, Stethoscope, Trash2, Video } from "lucide-react";
+import { Bell, CalendarDays, CalendarSync, Copy, Mail, MapPin, Repeat, Stethoscope, Trash2, Video } from "lucide-react";
 import { useEffect, useState } from "react";
 import { dayKey, isoLocal, parseLocal, uid } from "../../lib/dates";
 import type { CalEvent, EventKind, MeetingProvider, Recurrence } from "../../lib/types";
@@ -141,6 +141,7 @@ export function EventEditor() {
           onChange={(e) => set({ title: e.target.value })}
           onKeyDown={(e) => e.key === "Enter" && save()}
         />
+        {ev.source && <ImportedNote calId={ev.source.calId} />}
         <div className="grid grid-cols-4 gap-1.5">
           {KINDS.map((k) => (
             <button
@@ -312,5 +313,20 @@ export function EventEditor() {
         </Field>
       </div>
     </Modal>
+  );
+}
+
+/** Rappel de l'origine d'un événement importé (Google, Outlook…). */
+function ImportedNote({ calId }: { calId: string }) {
+  const cal = useApp((s) => s.calendars.find((c) => c.id === calId));
+  if (!cal) return null;
+  return (
+    <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-[12px]" style={{ background: cal.color + "1f", color: cal.color }}>
+      <CalendarSync size={14} className="shrink-0" />
+      <span>
+        Importé de <b>{cal.name}</b>
+        {cal.kind === "url" ? " — une modification ici sera remplacée à la prochaine synchronisation ; modifie-le plutôt dans l'agenda d'origine." : "."}
+      </span>
+    </div>
   );
 }
