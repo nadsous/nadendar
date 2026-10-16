@@ -60,9 +60,9 @@ jobs:
         with: { workspaces: src-tauri }
       - run: pnpm install --frozen-lockfile
       - name: Build APK
-        env:
-          NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
         run: |
+          # Variable de la machine GitHub (invisible pour ${{ env.* }}) : lue ici.
+          export NDK_HOME="$ANDROID_NDK_LATEST_HOME"
           echo "SDK : $ANDROID_HOME — NDK : $NDK_HOME"
           pnpm tauri android init
           # APK signée en mode debug : installable directement sur un téléphone (ARM 64 bits).
