@@ -76,18 +76,20 @@ export function TopBar({ mobile }: { mobile: boolean }) {
   const views = useViews();
 
   return (
-    <header className="safe-top flex h-[46px] shrink-0 items-center gap-2 px-2.5" data-tauri-drag-region>
-      <div className="pill-group !pr-3">
-        <IconBtn icon={PanelLeft} label="Panneau de gauche" active={leftOpen} onClick={() => setSettings({ leftOpen: !leftOpen })} />
+    <header className="safe-top flex h-[46px] shrink-0 items-center gap-2 overflow-hidden px-2.5" data-tauri-drag-region>
+      <div className={clsx("pill-group shrink-0", !mobile && "!pr-3")}>
+        {!mobile && <IconBtn icon={PanelLeft} label="Panneau de gauche" active={leftOpen} onClick={() => setSettings({ leftOpen: !leftOpen })} />}
         <Logo size={24} />
-        <span className="text-[14px] font-semibold tracking-[-0.02em] text-bright">
-          Nad<span className="text-brand">endar</span>
-        </span>
+        {!mobile && (
+          <span className="text-[14px] font-semibold tracking-[-0.02em] text-bright">
+            Nad<span className="text-brand">endar</span>
+          </span>
+        )}
       </div>
-      <div className="pill-group">
+      <div className="pill-group shrink-0">
         <IconBtn icon={ChevronLeft} label="Précédent" onClick={() => setUI({ cursor: step(view, cursor, -1) })} />
         <button className="h-8 rounded-lg px-2.5 text-[13px] font-medium text-fg hover:bg-elev hover:text-bright cursor-pointer" onClick={() => setUI({ cursor: Date.now(), selectedDay: dayKey(new Date()) })}>
-          Aujourd'hui
+          {mobile ? "Auj." : "Aujourd'hui"}
         </button>
         <IconBtn icon={ChevronRight} label="Suivant" onClick={() => setUI({ cursor: step(view, cursor, 1) })} />
       </div>
@@ -98,7 +100,7 @@ export function TopBar({ mobile }: { mobile: boolean }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.16 }}
-          className="truncate px-1 text-[16px] font-semibold tracking-[-0.02em] text-bright"
+          className={clsx("min-w-0 truncate px-1 font-semibold tracking-[-0.02em] text-bright", mobile ? "text-[14px]" : "text-[16px]")}
         >
           {title(view, cursor)}
         </motion.h1>
@@ -119,9 +121,9 @@ export function TopBar({ mobile }: { mobile: boolean }) {
           ))}
         </div>
       )}
-      <div className="pill-group">
+      <div className="pill-group shrink-0">
         <IconBtn icon={Search} label="Rechercher (Ctrl+K)" onClick={() => setUI({ modal: "palette" })} />
-        <IconBtn icon={Puzzle} label="Plugins" onClick={() => setUI({ modal: "plugins" })} />
+        {!mobile && <IconBtn icon={Puzzle} label="Plugins" onClick={() => setUI({ modal: "plugins" })} />}
         <IconBtn icon={Settings2} label="Réglages" onClick={() => setUI({ modal: "settings" })} />
         {!mobile && <IconBtn icon={PanelRight} label="Panneau de droite" active={rightOpen} onClick={() => setSettings({ rightOpen: !rightOpen })} />}
       </div>
@@ -227,9 +229,24 @@ function PersonaList() {
 export function LeftPanel() {
   const plugins = useEnabledPlugins();
   const setUI = useApp((s) => s.setUI);
+  const views = useViews();
+  const view = useApp((s) => s.settings.view);
+  const setSettings = useApp((s) => s.setSettings);
   return (
     <div className="flex h-full flex-col gap-5 overflow-y-auto p-3">
       <MiniMonth />
+      {/* Sur mobile, la barre du haut n'a pas la place pour toutes les vues. */}
+      <div className="grid grid-cols-2 gap-1 min-[820px]:hidden">
+        {views.map((v) => (
+          <button
+            key={v.id}
+            onClick={() => setSettings({ view: v.id })}
+            className={clsx("flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] cursor-pointer", view === v.id ? "bg-sel text-bright" : "bg-elev/50 text-muted")}
+          >
+            <v.icon size={15} className={view === v.id ? "text-brand" : undefined} /> {v.label}
+          </button>
+        ))}
+      </div>
       <PersonaList />
       <div className="mt-auto grid gap-1">
         <span className="px-1 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-muted">Plugins actifs</span>
@@ -353,7 +370,7 @@ export function StatusBar() {
 export function MobileNav({ onPanel }: { onPanel: (p: "left" | "right") => void }) {
   const view = useApp((s) => s.settings.view);
   const setSettings = useApp((s) => s.setSettings);
-  const views = useViews().slice(0, 5);
+  const views = useViews().slice(0, 4);
   return (
     <nav className="safe-bottom relative flex h-[58px] shrink-0 items-center justify-around border-t border-line bg-panel px-1">
       <button className="flex flex-col items-center gap-0.5 px-2 text-[10.5px] text-muted cursor-pointer" onClick={() => onPanel("left")}>
@@ -369,7 +386,7 @@ export function MobileNav({ onPanel }: { onPanel: (p: "left" | "right") => void 
       </button>
       <motion.button
         whileTap={{ scale: 0.9 }}
-        className="absolute -top-7 right-4 grid h-13 w-13 place-items-center rounded-2xl bg-brand text-on-brand shadow-xl shadow-brand/30 cursor-pointer"
+        className="absolute -top-[68px] right-4 grid place-items-center rounded-2xl bg-brand text-on-brand shadow-xl shadow-brand/30 cursor-pointer"
         style={{ width: 52, height: 52 }}
         onClick={() => newEventAt(new Date(Math.ceil(Date.now() / 3600000) * 3600000))}
         aria-label="Créer"

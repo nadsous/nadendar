@@ -127,7 +127,7 @@ export function MonthView() {
                   <div className="flex items-center gap-1">
                     <span
                       className={clsx(
-                        "grid h-6 min-w-6 place-items-center rounded-md px-1 text-[12.5px] tabular",
+                        "grid h-6 min-w-6 shrink-0 place-items-center whitespace-nowrap rounded-md px-1 text-[12.5px] tabular",
                         isToday ? "bg-brand font-semibold text-on-brand now-dot" : out ? "text-faint" : "text-bright",
                       )}
                     >
