@@ -43,7 +43,7 @@ jobs:
             src-tauri/target/release/bundle/rpm/*.rpm
 
   android:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -52,19 +52,21 @@ jobs:
         with: { node-version: 22, cache: pnpm }
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 17 }
-      - uses: android-actions/setup-android@v3
-      - name: NDK
-        run: sdkmanager "ndk;27.0.12077973"
+      # Le SDK et le NDK Android sont déjà installés sur les machines Ubuntu de GitHub.
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+          targets: aarch64-linux-android
+      - uses: swatinem/rust-cache@v2
+        with: { workspaces: src-tauri }
       - run: pnpm install --frozen-lockfile
       - name: Build APK
         env:
-          NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/27.0.12077973
+          NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
         run: |
+          echo "SDK : $ANDROID_HOME — NDK : $NDK_HOME"
           pnpm tauri android init
-          pnpm tauri android build --apk
+          # APK signée en mode debug : installable directement sur un téléphone (ARM 64 bits).
+          pnpm tauri android build --apk --debug --target aarch64
       - uses: actions/upload-artifact@v4
         with:
           name: nadendar-android
