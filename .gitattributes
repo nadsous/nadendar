@@ -1,0 +1,6 @@
+# Fichiers exécutés sur le VPS Linux : toujours en fins de ligne Unix.
+*.sh text eol=lf
+*.service text eol=lf
+*.timer text eol=lf
+server/deploy/*.conf text eol=lf
+server/*.ts text eol=lf
