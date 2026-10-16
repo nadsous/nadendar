@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+/* Onest, la police d'interface de nads.site, embarquée pour fonctionner hors ligne. */
+@font-face {
+  font-family: "Onest";
+  src: url("./assets/fonts/Onest-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Onest";
+  src: url("./assets/fonts/Onest-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Onest";
+  src: url("./assets/fonts/Onest-SemiBold.ttf") format("truetype");
+  font-weight: 600 700;
+  font-display: swap;
+}
+
+/* Tokens du thème « nads » (nads.site, styles/globals.css) : socle presque noir,
+   panneaux flottants arrondis, orange du logo en accent. */
+@theme {
+  --font-sans: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-base: #111113;
+  --color-panel: #1b1b1e;
+  --color-elev: #26262a;
+  --color-elev2: #303036;
+  --color-line: rgba(255, 255, 255, 0.07);
+  --color-line2: rgba(255, 255, 255, 0.12);
+  --color-fg: #c9c9d0;
+  --color-muted: #8b8b95;
+  --color-faint: #5b5b64;
+  --color-bright: #f4f4f5;
+  --color-brand: #fe7146;
+  --color-brand-deep: #c8411b;
+  --color-on-brand: #1a0c06;
+  --color-sel: rgba(254, 113, 70, 0.16);
+  --color-ok: #4ade80;
+  --color-warn: #fbbf24;
+  --color-bad: #f87171;
+
+  --radius-panel: 14px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-base);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+textarea,
+[contenteditable] {
+  user-select: text;
+}
+
+::selection {
+  background: var(--color-sel);
+}
+
+/* Barres de défilement discrètes, comme sur nads.site. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Panneau flottant. */
+.panel {
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+}
+
+/* Groupe de pilules de la barre du haut. */
+.pill-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-panel);
+}
+
+.field {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 9px;
+  border: 1px solid var(--color-line);
+  background: var(--color-base);
+  color: var(--color-bright);
+  outline: none;
+  font: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field:focus {
+  border-color: rgba(254, 113, 70, 0.55);
+  box-shadow: 0 0 0 3px rgba(254, 113, 70, 0.14);
+}
+textarea.field {
+  height: auto;
+  padding: 8px 10px;
+  resize: vertical;
+}
+select.field {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #8b8b95 50%),
+    linear-gradient(135deg, #8b8b95 50%, transparent 50%);
+  background-position: calc(100% - 15px) 15px, calc(100% - 10px) 15px;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 26px;
+}
+input[type="color"].field {
+  padding: 3px;
+  width: 44px;
+}
+input[type="checkbox"] {
+  accent-color: var(--color-brand);
+}
+
+/* Trame des heures de nuit dans les vues semaine/jour. */
+.night-shade {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.06) 0 6px,
+    rgba(99, 102, 241, 0.02) 6px 12px
+  );
+}
+
+/* Pulsation douce pour « maintenant ». */
+@keyframes now-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(254, 113, 70, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(254, 113, 70, 0);
+  }
+}
+.now-dot {
+  animation: now-pulse 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+.today-ring {
+  background: linear-gradient(90deg, transparent, rgba(254, 113, 70, 0.12), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 4s linear infinite;
+}
+
+.no-anim *,
+.no-anim *::before,
+.no-anim *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Zones sûres (encoche) sur Android. */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
