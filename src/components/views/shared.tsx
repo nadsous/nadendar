@@ -3,7 +3,7 @@ import { AlertTriangle, Repeat } from "lucide-react";
 import { memo } from "react";
 import { hhmm, isoLocal } from "../../lib/dates";
 import type { CalItem, DayBadge, PersonaChip } from "../../plugins/types";
-import { useApp } from "../../store/store";
+import { showPanel, useApp } from "../../store/store";
 import { Avatar } from "../ui/Avatar";
 
 export const Badges = memo(function Badges({ badges, max = 4 }: { badges: DayBadge[]; max?: number }) {
@@ -11,7 +11,16 @@ export const Badges = memo(function Badges({ badges, max = 4 }: { badges: DayBad
   return (
     <div className="flex min-w-0 items-center justify-end gap-1 overflow-hidden">
       {badges.slice(0, max).map((b) => (
-        <span key={b.id} title={b.title} className={clsx("flex items-center", b.wide && "min-w-0")}>
+        // Selon la largeur de la case (@container) : férié toujours (tronqué), météo et lune
+        // dès 96 px, le reste (budget, menus, vacances) dès 140 px. Jamais de badge coupé.
+        <span
+          key={b.id}
+          title={b.title}
+          className={clsx(
+            "items-center",
+            b.wide ? "flex min-w-0" : b.order <= 2 ? "hidden shrink-0 @[96px]:flex" : "hidden shrink-0 @[140px]:flex",
+          )}
+        >
           {b.node}
         </span>
       ))}
@@ -141,7 +150,7 @@ export function openItem(item: CalItem) {
     const p = useApp.getState().personas.find((x) => x.id === item.personaIds[0]);
     if (p) ui({ editingPersona: p });
   } else if (item.source === "gantt") settings({ view: "gantt" });
-  else if (["todo", "shopping", "deliveries"].includes(item.source)) settings({ rightOpen: true, rightTab: item.source });
+  else if (["todo", "shopping", "deliveries"].includes(item.source)) showPanel("right", item.source);
   else if (item.source === "birthdays") {
     const p = useApp.getState().personas.find((x) => x.id === item.personaIds[0]);
     if (p) ui({ editingPersona: p });

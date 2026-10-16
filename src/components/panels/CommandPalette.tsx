@@ -4,7 +4,7 @@ import { CalendarDays, CalendarPlus, CheckSquare, Printer, Puzzle, Search, Setti
 import { useEffect, useMemo, useState } from "react";
 import { cap, fmt, parseLocal } from "../../lib/dates";
 import { useEnabledPlugins } from "../../plugins/registry";
-import { useApp } from "../../store/store";
+import { showPanel, useApp } from "../../store/store";
 import { newEventAt } from "../views/shared";
 import { blankPersona } from "./PersonaEditor";
 
@@ -62,7 +62,7 @@ export function CommandPalette() {
           icon: CalendarDays,
           run: () => setUI({ editingEvent: e, cursor: parseLocal(e.start).getTime(), modal: null }),
         })),
-      ...todos.filter((t) => norm(t.title).includes(n)).map((t) => ({ id: t.id, label: t.title, hint: "Tâche", icon: CheckSquare, run: () => setSettings({ rightOpen: true, rightTab: "todo" }) })),
+      ...todos.filter((t) => norm(t.title).includes(n)).map((t) => ({ id: t.id, label: t.title, hint: "Tâche", icon: CheckSquare, run: () => showPanel("right", "todo") })),
     ];
     return [...found, ...base.filter((c) => norm(c.label).includes(n))];
   }, [q, events, personas, todos, plugins, setUI, setSettings]);

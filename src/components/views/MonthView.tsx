@@ -10,7 +10,7 @@ import { step } from "../Shell";
 import { holidayOn } from "../../lib/holidays";
 import { collectBadges, collectChips, useCalendarData } from "../../plugins/registry";
 import type { CalItem } from "../../plugins/types";
-import { useApp } from "../../store/store";
+import { showPanel, useApp } from "../../store/store";
 import { Badges, Chips, ChipsLabeled, ItemRow, newEventAt, openItem } from "./shared";
 import type { CellSize } from "../../lib/types";
 
@@ -172,7 +172,7 @@ export function MonthView() {
                     if (id) moveEvent(id, d);
                   }}
                   className={clsx(
-                    "group relative flex min-h-0 flex-col transition-colors cursor-default",
+                    "@container group relative flex min-h-0 flex-col transition-colors cursor-default",
                     grows && !mobile ? "overflow-visible" : "overflow-hidden",
                     mobile ? "items-center gap-[3px] p-1" : large ? "gap-1 p-2" : "gap-[3px] p-1.5",
                     out ? "bg-base/70" : weekend || hol ? "bg-weekend" : "bg-panel",
@@ -210,7 +210,7 @@ export function MonthView() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setUI({ selectedDay: k });
-                          useApp.getState().setSettings({ rightOpen: true, rightTab: "today" });
+                          showPanel("right", "today");
                         }}
                       >
                         +{list.length - maxItems} autres

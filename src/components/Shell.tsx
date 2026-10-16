@@ -33,7 +33,7 @@ import logo from "../assets/logo.svg";
 import { cap, dayKey, fmt, fromKey, monthGrid } from "../lib/dates";
 import { isMobileWidth, weekSpan, weekStart } from "../lib/useMobile";
 import { collectBadges, collectChips, useCalendarData, useEnabledPlugins } from "../plugins/registry";
-import { useApp } from "../store/store";
+import { togglePanel, useApp } from "../store/store";
 import { Avatar } from "./ui/Avatar";
 import { Button, IconBtn } from "./ui/ui";
 import { Badges, Chips, ItemRow, newEventAt, openItem } from "./views/shared";
@@ -148,10 +148,10 @@ export function TopBar({ mobile }: { mobile: boolean }) {
   return (
     <header className="safe-top flex h-[46px] shrink-0 items-center gap-2 overflow-hidden px-2.5" data-tauri-drag-region>
       <div className={clsx("pill-group shrink-0", !mobile && "!pr-3")}>
-        {!mobile && <IconBtn icon={PanelLeft} label="Panneau de gauche" active={leftOpen} onClick={() => setSettings({ leftOpen: !leftOpen })} />}
+        {!mobile && <IconBtn icon={PanelLeft} label="Panneau de gauche" active={leftOpen} onClick={() => togglePanel("left")} />}
         <Logo size={24} />
         {!mobile && (
-          <span className="text-[14px] font-semibold tracking-[-0.02em] text-bright">
+          <span className="hidden text-[14px] font-semibold tracking-[-0.02em] text-bright lg:inline">
             Nad<span className="text-brand">endar</span>
           </span>
         )}
@@ -176,9 +176,13 @@ export function TopBar({ mobile }: { mobile: boolean }) {
         </motion.h1>
       </AnimatePresence>
       <span className="flex-1" data-tauri-drag-region />
-      {!mobile && view === "month" && <CellSizePicker />}
+      {!mobile && view === "month" && (
+        <div className="hidden xl:block">
+          <CellSizePicker />
+        </div>
+      )}
       {!mobile && (
-        <div className="pill-group">
+        <div className="pill-group shrink-0">
           {views.map((v) => (
             <button
               key={v.id}
@@ -200,11 +204,11 @@ export function TopBar({ mobile }: { mobile: boolean }) {
         {!mobile && <IconBtn icon={Printer} label="Imprimer / PDF (Ctrl+P)" onClick={() => setUI({ modal: "print" })} />}
         {!mobile && <IconBtn icon={Puzzle} label="Plugins" onClick={() => setUI({ modal: "plugins" })} />}
         <IconBtn icon={Settings2} label="Réglages" onClick={() => setUI({ modal: "settings" })} />
-        {!mobile && <IconBtn icon={PanelRight} label="Panneau de droite" active={rightOpen} onClick={() => setSettings({ rightOpen: !rightOpen })} />}
+        {!mobile && <IconBtn icon={PanelRight} label="Panneau de droite" active={rightOpen} onClick={() => togglePanel("right")} />}
       </div>
       {!mobile && (
-        <Button variant="primary" icon={Plus} onClick={() => newEventAt(new Date(Math.ceil(Date.now() / 3600000) * 3600000))}>
-          Créer
+        <Button variant="primary" icon={Plus} className="shrink-0" title="Créer (N)" onClick={() => newEventAt(new Date(Math.ceil(Date.now() / 3600000) * 3600000))}>
+          <span className="hidden xl:inline">Créer</span>
         </Button>
       )}
     </header>

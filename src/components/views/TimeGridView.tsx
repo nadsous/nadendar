@@ -161,8 +161,8 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
         {days.map((d) => {
           const isToday = isSameDay(d, now);
           return (
-            <div key={d.getTime()} className={clsx("flex min-w-0 flex-1 flex-col gap-1 border-l border-line py-2", mobile ? "px-1" : "px-2")} onClick={() => setUI({ selectedDay: dayKey(d) })}>
-              <div className={clsx("flex items-center gap-1.5", mobile && "flex-wrap gap-x-1 gap-y-0.5")}>
+            <div key={d.getTime()} className={clsx("@container flex min-w-0 flex-1 flex-col gap-1 overflow-hidden border-l border-line py-2", mobile ? "px-1" : "px-2")} onClick={() => setUI({ selectedDay: dayKey(d) })}>
+              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
                 <span className={clsx("text-[11.5px] uppercase tracking-wider", isToday ? "text-brand" : "text-muted")}>{fmt(d, "EEE")}</span>
                 <span className={clsx("grid h-7 min-w-7 place-items-center rounded-lg px-1 text-[15px] font-semibold tabular", isToday ? "bg-brand text-on-brand" : "text-bright")}>{d.getDate()}</span>
                 {mode === "day" && <span className="text-[13px] text-muted">{cap(fmt(d, "MMMM yyyy"))}</span>}

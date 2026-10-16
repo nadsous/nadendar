@@ -15,6 +15,24 @@ export function useMobile() {
   return m;
 }
 
+/** En dessous, le panneau de droite (330 px) s'ouvre en tiroir au lieu de serrer le calendrier. */
+export const RIGHT_INLINE = 1280;
+/** En dessous, le panneau de gauche (268 px) s'ouvre en tiroir. */
+export const LEFT_INLINE = 1040;
+
+export const canInline = (side: "left" | "right") =>
+  typeof window !== "undefined" && window.innerWidth >= (side === "left" ? LEFT_INLINE : RIGHT_INLINE);
+
+export function useWidth() {
+  const [w, setW] = useState(() => (typeof window === "undefined" ? 1440 : window.innerWidth));
+  useEffect(() => {
+    const h = () => setW(window.innerWidth);
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+  return w;
+}
+
 /** Nombre de jours de la vue « semaine » : 3 sur téléphone, 7 sinon. */
 export const weekSpan = () => (isMobileWidth() ? 3 : 7);
 

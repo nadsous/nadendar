@@ -45,6 +45,8 @@ export interface UIState {
   editingEvent: Partial<CalEvent> | null;
   editingPersona: Partial<Persona> | null;
   modal: null | "plugins" | "settings" | "palette" | "print";
+  /** Panneau ouvert en tiroir (petits écrans). */
+  drawer: null | "left" | "right";
 }
 
 export interface AppState extends Data {
@@ -102,6 +104,7 @@ export const useApp = create<AppState>()(
         editingEvent: null,
         editingPersona: null,
         modal: null,
+        drawer: null,
       },
       add: (c, item) => {
         const id = item.id ?? uid();
@@ -157,6 +160,23 @@ export const exportData = () => {
   };
   return JSON.stringify(data, null, 2);
 };
+
+/** Ouvre un panneau : en ligne s'il y a la place, sinon en tiroir. */
+export function showPanel(side: "left" | "right", tab?: string) {
+  const s = useApp.getState();
+  const wide = window.innerWidth >= (side === "left" ? 1040 : 1280) && window.innerWidth >= 820;
+  if (tab) s.setSettings({ rightTab: tab });
+  if (wide) s.setSettings(side === "left" ? { leftOpen: true } : { rightOpen: true });
+  else s.setUI({ drawer: side });
+}
+
+/** Bascule un panneau depuis la barre du haut. */
+export function togglePanel(side: "left" | "right") {
+  const s = useApp.getState();
+  const wide = window.innerWidth >= (side === "left" ? 1040 : 1280) && window.innerWidth >= 820;
+  if (wide) s.setSettings(side === "left" ? { leftOpen: !s.settings.leftOpen } : { rightOpen: !s.settings.rightOpen });
+  else s.setUI({ drawer: s.ui.drawer === side ? null : side });
+}
 
 export const personaById = (id?: ID) =>
   id ? useApp.getState().personas.find((p) => p.id === id) : undefined;

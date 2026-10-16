@@ -1,10 +1,10 @@
 import clsx from "clsx";
 import { addDays, differenceInMinutes } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { dayKey, hhmm } from "./lib/dates";
 import { applyTheme, notify } from "./lib/platform";
-import { useMobile } from "./lib/useMobile";
+import { LEFT_INLINE, RIGHT_INLINE, useMobile, useWidth } from "./lib/useMobile";
 import { expand } from "./lib/recurrence";
 import { PLUGINS, useEnabledPlugins } from "./plugins/registry";
 import type { Plugin } from "./plugins/types";
@@ -116,7 +116,17 @@ export default function App() {
   const hasPersonas = useApp((s) => s.personas.length > 0);
   const plugins = useEnabledPlugins();
   const mobile = useMobile();
-  const [sheet, setSheet] = useState<null | "left" | "right">(null);
+  const width = useWidth();
+  const sheet = useApp((s) => s.ui.drawer);
+  const setUI = useApp((s) => s.setUI);
+  const setSheet = (d: null | "left" | "right") => setUI({ drawer: d });
+  // Assez de place pour garder les panneaux à côté du calendrier ?
+  const leftInline = !mobile && width >= LEFT_INLINE;
+  const rightInline = !mobile && width >= RIGHT_INLINE;
+  // En passant en grand écran, un tiroir ouvert devient inutile.
+  useEffect(() => {
+    if ((sheet === "left" && leftInline) || (sheet === "right" && rightInline)) setUI({ drawer: null });
+  }, [leftInline, rightInline]); // eslint-disable-line react-hooks/exhaustive-deps
   useReminders();
   useShortcuts();
   useTheme();
@@ -132,7 +142,7 @@ export default function App() {
       ))}
       <TopBar mobile={mobile} />
       <div className="flex min-h-0 flex-1 gap-2 px-2">
-        {!mobile && (
+        {leftInline && (
           <motion.aside animate={{ width: leftOpen ? 268 : 0, opacity: leftOpen ? 1 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} className={clsx("panel shrink-0 overflow-hidden", !leftOpen && "!border-0")}>
             <div className="h-full w-[268px]">
               <LeftPanel />
@@ -147,7 +157,7 @@ export default function App() {
           </AnimatePresence>
           {!onboarded && !hasPersonas && <Onboarding />}
         </main>
-        {!mobile && (
+        {rightInline && (
           <motion.aside animate={{ width: rightOpen ? 330 : 0, opacity: rightOpen ? 1 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} className={clsx("panel shrink-0 overflow-hidden", !rightOpen && "!border-0")}>
             <div className="h-full w-[330px]">
               <RightPanel />
@@ -157,9 +167,9 @@ export default function App() {
       </div>
       {mobile ? <MobileNav onPanel={setSheet} /> : <StatusBar />}
 
-      {/* Panneaux en tiroir sur mobile */}
+      {/* Panneaux en tiroir : téléphone, ou fenêtre trop étroite pour les garder à côté. */}
       <AnimatePresence>
-        {mobile && sheet && (
+        {sheet && ((sheet === "left" && !leftInline) || (sheet === "right" && !rightInline)) && (
           <motion.div className="fixed inset-0 z-40 bg-black/50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSheet(null)}>
             <motion.div
               className={clsx("panel safe-top safe-bottom absolute bottom-0 top-0 w-[86vw] max-w-[360px] !rounded-none", sheet === "left" ? "left-0" : "right-0")}
