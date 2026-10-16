@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-net --allow-env --allow-read --allow-write --unstable-kv --watch main.ts",
+    "start": "deno run --allow-net --allow-env --allow-read --allow-write --unstable-kv main.ts",
+    "backup": "deno run --allow-env --allow-read --allow-write --unstable-kv backup.ts",
+    "test": "deno run --allow-net --allow-env --allow-read --allow-write --unstable-kv test.ts",
+    "check": "deno check main.ts backup.ts test.ts"
+  },
+  "fmt": { "lineWidth": 120, "indentWidth": 2 }
+}

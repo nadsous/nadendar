@@ -1,11 +1,12 @@
 import clsx from "clsx";
-import { Download, MapPin, Monitor, Moon, RotateCcw, Settings2, Sparkles, Sun, Upload } from "lucide-react";
+import { Download, House, MapPin, Monitor, Moon, RotateCcw, Settings2, Sparkles, Sun, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { saveBackupFile } from "../../lib/platform";
 import type { GeoPlace, SchoolZone, ThemeMode } from "../../lib/types";
 import { searchPlaces } from "../../lib/weather";
 import { exportData, useApp } from "../../store/store";
 import { CELL_SIZES } from "../Shell";
+import { SyncPanel } from "./SyncPanel";
 import { loadDemo } from "../../store/demo";
 import { Button, Field, Modal, Section, Toggle } from "../ui/ui";
 
@@ -61,6 +62,9 @@ export function SettingsModal() {
   return (
     <Modal open={open} onClose={() => setUI({ modal: null })} title="Réglages" icon={Settings2} width={560}>
       <div className="grid gap-6">
+        <Section title="Foyer : partager entre appareils" icon={House}>
+          <SyncPanel />
+        </Section>
         <Section title="Lieu (météo, soleil, lune)" icon={MapPin}>
           <PlaceSearch />
         </Section>

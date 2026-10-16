@@ -1,0 +1,37 @@
+[Unit]
+Description=Nadendar Sync (synchronisation chiffrée des calendriers)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nadendar
+Group=nadendar
+WorkingDirectory=/opt/nadendar-sync
+Environment=DENO_KV_PATH=/var/lib/nadendar-sync/sync.db
+Environment=DENO_DIR=/var/lib/nadendar-sync/.deno
+Environment=PORT=8787
+Environment=HOST=127.0.0.1
+Environment=NO_COLOR=1
+ExecStart=/usr/local/bin/deno run --allow-net=127.0.0.1:8787 --allow-env --allow-read=/opt/nadendar-sync,/var/lib/nadendar-sync --allow-write=/var/lib/nadendar-sync --unstable-kv /opt/nadendar-sync/main.ts
+Restart=always
+RestartSec=3
+
+# Isolation : le service ne peut écrire que dans son dossier de données.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadWritePaths=/var/lib/nadendar-sync
+# Un souci dans la synchro ne peut pas affamer nads.site.
+MemoryMax=256M
+CPUQuota=50%
+
+[Install]
+WantedBy=multi-user.target

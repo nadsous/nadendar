@@ -38,6 +38,7 @@ import { Avatar } from "./ui/Avatar";
 import { Button, IconBtn } from "./ui/ui";
 import { Badges, Chips, ItemRow, newEventAt, openItem } from "./views/shared";
 import { blankPersona } from "./panels/PersonaEditor";
+import { SyncBadge } from "./panels/SyncPanel";
 
 export const CORE_VIEWS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: "month", label: "Mois", icon: CalendarDays },
@@ -444,9 +445,7 @@ export function StatusBar() {
       <span className="hidden sm:inline">
         {personas.length} personas · {events.length} événements
       </span>
-      <span className="flex items-center gap-1.5">
-        <span className="h-1.5 w-1.5 rounded-full bg-ok" /> Local
-      </span>
+      <SyncBadge />
     </footer>
   );
 }

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { dayKey, hhmm } from "./lib/dates";
 import { applyTheme, notify } from "./lib/platform";
+import { startSync } from "./lib/sync/engine";
 import { LEFT_INLINE, RIGHT_INLINE, useMobile, useWidth } from "./lib/useMobile";
 import { expand } from "./lib/recurrence";
 import { PLUGINS, useEnabledPlugins } from "./plugins/registry";
@@ -130,6 +131,10 @@ export default function App() {
   useReminders();
   useShortcuts();
   useTheme();
+  // Synchronisation du foyer (si cet appareil en fait partie).
+  useEffect(() => {
+    startSync();
+  }, []);
 
   const pluginView = PLUGINS.find((p) => p.view?.id === view && plugins.includes(p))?.view?.component;
   const content =

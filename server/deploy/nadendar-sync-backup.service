@@ -1,0 +1,18 @@
+[Unit]
+Description=Sauvegarde de Nadendar Sync
+
+[Service]
+Type=oneshot
+User=nadendar
+Group=nadendar
+Environment=DENO_KV_PATH=/var/lib/nadendar-sync/sync.db
+Environment=DENO_DIR=/var/lib/nadendar-sync/.deno
+Environment=BACKUP_DIR=/var/backups/nadendar-sync
+Environment=BACKUP_KEEP_DAYS=14
+Environment=NO_COLOR=1
+ExecStart=/usr/local/bin/deno run --allow-env --allow-read=/opt/nadendar-sync,/var/lib/nadendar-sync,/var/backups/nadendar-sync --allow-write=/var/lib/nadendar-sync,/var/backups/nadendar-sync --unstable-kv /opt/nadendar-sync/backup.ts
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/nadendar-sync /var/backups/nadendar-sync
