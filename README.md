@@ -26,6 +26,10 @@ lunettes, barbe), une couleur et un profil (adulte, ado, enfant, bébé, senior)
 une pastille *avatar + icône* dit qui travaille et comment : 🌅 matin, 🌇 après-midi, 🌙 nuit,
 ☀️ journée, 💻 télétravail, 🌴 congé…
 
+**Taille des cases** — compacte, normale, auto (chaque semaine s'agrandit pour tout afficher,
+sans « +N ») ou grande (textes en clair : « Nuit 21:00–05:00 », heures au-dessus des titres).
+Boutons au-dessus du mois, `Ctrl` + molette, ou Réglages.
+
 **Thèmes** — sombre (style nads.site), clair, ou celui du système (suivi en direct, barre de
 titre Windows comprise) : icône soleil/lune en haut ou Réglages ▸ Affichage.
 

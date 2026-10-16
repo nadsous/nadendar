@@ -85,6 +85,7 @@ export const DEFAULT_SETTINGS: Settings = {
   rightTab: "today",
   animations: true,
   compact: false,
+  cellSize: "fit",
   notifications: true,
   onboarded: false,
 };

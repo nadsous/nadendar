@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { addDays, differenceInMinutes, isSameDay, isSameMonth } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cap, dayKey, fmt, fromKey, isoLocal, monthGrid, parseLocal } from "../../lib/dates";
 import { useMobile } from "../../lib/useMobile";
 import { Plus } from "lucide-react";
@@ -11,7 +11,8 @@ import { holidayOn } from "../../lib/holidays";
 import { collectBadges, collectChips, useCalendarData } from "../../plugins/registry";
 import type { CalItem } from "../../plugins/types";
 import { useApp } from "../../store/store";
-import { Badges, Chips, ItemRow, newEventAt, openItem } from "./shared";
+import { Badges, Chips, ChipsLabeled, ItemRow, newEventAt, openItem } from "./shared";
+import type { CellSize } from "../../lib/types";
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
@@ -19,7 +20,10 @@ export function MonthView() {
   const cursor = useApp((s) => s.ui.cursor);
   const selected = useApp((s) => s.ui.selectedDay);
   const setUI = useApp((s) => s.setUI);
-  const compact = useApp((s) => s.settings.compact);
+  const size: CellSize = useApp((s) => s.settings.cellSize ?? (s.settings.compact ? "compact" : "fit"));
+  const compact = size === "compact";
+  const large = size === "large";
+  const grows = size === "fit" || size === "large";
   const mobile = useMobile();
   const anchor = new Date(cursor);
   const days = useMemo(() => monthGrid(anchor), [anchor.getFullYear(), anchor.getMonth()]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -58,7 +62,33 @@ export function MonthView() {
 
   const today = new Date();
   const rows = days.length / 7;
-  const maxItems = compact ? 2 : 4;
+  // Hauteur disponible : les semaines la remplissent au minimum, et grandissent au besoin.
+  const box = useRef<HTMLDivElement>(null);
+  const [boxH, setBoxH] = useState(600);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setBoxH(el.clientHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // Ctrl + molette : cases plus petites / plus grandes.
+  useEffect(() => {
+    const el = box.current;
+    if (!el || mobile) return;
+    const order: CellSize[] = ["compact", "normal", "fit", "large"];
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      const cur = order.indexOf(useApp.getState().settings.cellSize ?? "fit");
+      const next = order[Math.max(0, Math.min(order.length - 1, cur + (e.deltaY < 0 ? 1 : -1)))];
+      useApp.getState().setSettings({ cellSize: next });
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [mobile]);
+  const minRow = Math.max(60, Math.floor((boxH - 2) / rows));
+  const maxItems = compact ? 2 : grows ? Infinity : 4;
 
   const moveEvent = (id: string, day: Date) => {
     const ev = state.events.find((e) => e.id === id);
@@ -82,6 +112,7 @@ export function MonthView() {
         ))}
       </div>
       <motion.div
+        ref={box}
         className={clsx("relative overflow-hidden", mobile ? "flex-[1.25]" : "flex-1")}
         style={{ touchAction: "pan-y" }}
         onPanEnd={(_, info) => {
@@ -103,9 +134,17 @@ export function MonthView() {
             animate="center"
             exit="exit"
             transition={{ type: "spring", stiffness: 380, damping: 38 }}
-            className="absolute inset-0 grid grid-cols-7 gap-px bg-line p-px"
-            style={{ gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}
+            className={clsx("absolute inset-0", grows && !mobile ? "overflow-y-auto" : "overflow-hidden")}
           >
+            <div
+              className={clsx("grid grid-cols-7 gap-px bg-line p-px", (!grows || mobile) && "h-full")}
+              style={{
+                gridTemplateRows:
+                  grows && !mobile
+                    ? `repeat(${rows}, minmax(${large ? Math.max(minRow, 170) : minRow}px, auto))`
+                    : `repeat(${rows}, minmax(0, 1fr))`,
+              }}
+            >
             {days.map((d, i) => {
               const k = dayKey(d);
               const list = perDay.get(k) ?? [];
@@ -133,8 +172,9 @@ export function MonthView() {
                     if (id) moveEvent(id, d);
                   }}
                   className={clsx(
-                    "group relative flex min-h-0 flex-col overflow-hidden transition-colors cursor-default",
-                    mobile ? "items-center gap-[3px] p-1" : "gap-[3px] p-1.5",
+                    "group relative flex min-h-0 flex-col transition-colors cursor-default",
+                    grows && !mobile ? "overflow-visible" : "overflow-hidden",
+                    mobile ? "items-center gap-[3px] p-1" : large ? "gap-1 p-2" : "gap-[3px] p-1.5",
                     out ? "bg-base/70" : weekend || hol ? "bg-weekend" : "bg-panel",
                     selected === k && "!bg-selday",
                     "hover:bg-elev/60",
@@ -148,20 +188,21 @@ export function MonthView() {
                   <div className="flex items-center gap-1">
                     <span
                       className={clsx(
-                        "grid h-6 min-w-6 shrink-0 place-items-center whitespace-nowrap rounded-md px-1 text-[12.5px] tabular",
+                        "grid shrink-0 place-items-center whitespace-nowrap rounded-md px-1 tabular",
+                        large ? "h-7 min-w-7 text-[14px]" : "h-6 min-w-6 text-[12.5px]",
                         isToday ? "bg-brand font-semibold text-on-brand now-dot" : out ? "text-faint" : "text-bright",
                       )}
                     >
                       {d.getDate() === 1 && !isToday ? fmt(d, "d MMM") : d.getDate()}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <Badges badges={deco.badges} max={3} />
+                      <Badges badges={deco.badges} max={large ? 5 : 3} />
                     </div>
                   </div>
-                  <Chips chips={deco.chips} compact={compact} />
+                  {large ? <ChipsLabeled chips={deco.chips} /> : <Chips chips={deco.chips} compact={compact} />}
                   <div className="flex min-h-0 flex-col gap-[2px]">
                     {list.slice(0, maxItems).map((it) => (
-                      <ItemRow key={it.id} item={it} onOpen={openItem} />
+                      <ItemRow key={it.id} item={it} onOpen={openItem} large={large} />
                     ))}
                     {list.length > maxItems && (
                       <button
@@ -193,6 +234,7 @@ export function MonthView() {
                 </motion.div>
               );
             })}
+            </div>
           </motion.div>
         </AnimatePresence>
       </motion.div>

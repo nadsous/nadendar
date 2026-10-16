@@ -16,6 +16,10 @@ import {
   PanelRight,
   Plus,
   Printer,
+  Rows2,
+  Rows3,
+  Rows4,
+  UnfoldVertical,
   Puzzle,
   Search,
   Settings2,
@@ -73,6 +77,38 @@ const THEMES = [
   { id: "light", label: "Thème clair", icon: Sun },
   { id: "system", label: "Thème du système", icon: Monitor },
 ] as const;
+
+export const CELL_SIZES = [
+  { id: "compact", label: "Cases compactes", icon: Rows4 },
+  { id: "normal", label: "Cases normales (tout tient à l'écran)", icon: Rows3 },
+  { id: "fit", label: "Auto : chaque semaine s'agrandit pour tout afficher", icon: UnfoldVertical },
+  { id: "large", label: "Grandes cases, textes en clair", icon: Rows2 },
+] as const;
+
+function CellSizePicker() {
+  const size = useApp((s) => s.settings.cellSize ?? (s.settings.compact ? "compact" : "fit"));
+  const setSettings = useApp((s) => s.setSettings);
+  return (
+    <div className="pill-group" title="Taille des cases (Ctrl + molette)">
+      {CELL_SIZES.map((c) => (
+        <button
+          key={c.id}
+          title={c.label}
+          aria-label={c.label}
+          // Les grandes cases ont besoin de largeur : on replie les panneaux latéraux.
+          onClick={() => setSettings(c.id === "large" ? { cellSize: c.id, leftOpen: false, rightOpen: false } : { cellSize: c.id })}
+          className={clsx(
+            "relative grid h-8 w-8 place-items-center rounded-lg transition-colors cursor-pointer",
+            size === c.id ? "text-brand" : "text-muted hover:text-bright",
+          )}
+        >
+          {size === c.id && <motion.span layoutId="cell-size" className="absolute inset-0 rounded-lg bg-elev" transition={{ type: "spring", stiffness: 500, damping: 38 }} />}
+          <c.icon size={15} className="relative" />
+        </button>
+      ))}
+    </div>
+  );
+}
 
 /** Bascule sombre → clair → système. */
 function ThemeButton() {
@@ -134,23 +170,26 @@ export function TopBar({ mobile }: { mobile: boolean }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.16 }}
-          className={clsx("min-w-0 truncate px-1 font-semibold tracking-[-0.02em] text-bright", mobile ? "text-[14px]" : "text-[16px]")}
+          className={clsx("min-w-0 truncate px-1 font-semibold tracking-[-0.02em] text-bright", mobile ? "text-[14px]" : "shrink-0 text-[16px]")}
         >
           {title(view, cursor)}
         </motion.h1>
       </AnimatePresence>
       <span className="flex-1" data-tauri-drag-region />
+      {!mobile && view === "month" && <CellSizePicker />}
       {!mobile && (
         <div className="pill-group">
           {views.map((v) => (
             <button
               key={v.id}
+              title={v.label}
+              aria-label={v.label}
               onClick={() => setSettings({ view: v.id })}
               className={clsx("relative flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[12.5px] font-medium transition-colors cursor-pointer", view === v.id ? "text-bright" : "text-muted hover:text-fg")}
             >
               {view === v.id && <motion.span layoutId="view-pill" className="absolute inset-0 rounded-lg bg-elev" transition={{ type: "spring", stiffness: 500, damping: 38 }} />}
               <v.icon size={14} className={clsx("relative", view === v.id && "text-brand")} />
-              <span className="relative hidden lg:inline">{v.label}</span>
+              <span className="relative hidden 2xl:inline">{v.label}</span>
             </button>
           ))}
         </div>

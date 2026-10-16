@@ -5,6 +5,7 @@ import { saveBackupFile } from "../../lib/platform";
 import type { GeoPlace, SchoolZone, ThemeMode } from "../../lib/types";
 import { searchPlaces } from "../../lib/weather";
 import { exportData, useApp } from "../../store/store";
+import { CELL_SIZES } from "../Shell";
 import { loadDemo } from "../../store/demo";
 import { Button, Field, Modal, Section, Toggle } from "../ui/ui";
 
@@ -63,6 +64,23 @@ export function SettingsModal() {
         <Section title="Lieu (météo, soleil, lune)" icon={MapPin}>
           <PlaceSearch />
         </Section>
+        <Section title="Taille des cases du mois">
+          <div className="grid grid-cols-2 gap-1.5">
+            {CELL_SIZES.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setSettings({ cellSize: c.id })}
+                className={clsx(
+                  "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-[12.5px] transition-colors cursor-pointer",
+                  (settings.cellSize ?? "fit") === c.id ? "border-brand/60 bg-sel text-bright" : "border-line text-muted hover:text-fg",
+                )}
+              >
+                <c.icon size={16} className="shrink-0" /> {c.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11.5px] text-faint">Astuce : Ctrl + molette sur le calendrier change la taille.</p>
+        </Section>
         <Section title="Vacances scolaires">
           <Field label="Zone">
             <select className="field" value={settings.schoolZone} onChange={(e) => (setSettings({ schoolZone: e.target.value as SchoolZone }), setCache({ schoolHolidays: null }))}>
@@ -97,7 +115,6 @@ export function SettingsModal() {
           {(
             [
               ["animations", "Animations"],
-              ["compact", "Cases compactes (moins de lignes par jour)"],
               ["notifications", "Notifications de rappel"],
             ] as const
           ).map(([k, label]) => (

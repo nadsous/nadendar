@@ -258,6 +258,8 @@ export interface GeoPlace {
 export type SchoolZone = "Zone A" | "Zone B" | "Zone C" | "Corse";
 export type ViewId = "month" | "week" | "day" | "agenda" | string;
 export type ThemeMode = "dark" | "light" | "system";
+/** Taille des cases du mois : « fit » agrandit chaque semaine pour tout afficher. */
+export type CellSize = "compact" | "normal" | "large" | "fit";
 
 export interface Settings {
   theme: ThemeMode;
@@ -270,6 +272,7 @@ export interface Settings {
   rightTab: string;
   animations: boolean;
   compact: boolean;
+  cellSize: CellSize;
   notifications: boolean;
   onboarded: boolean;
 }
