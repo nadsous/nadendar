@@ -3,6 +3,7 @@ import { forwardRef, type CSSProperties, type ReactNode } from "react";
 import logo from "../../assets/logo.svg";
 import { cap, dayKey, fmt, hhmm, monthGrid, WEEK } from "../../lib/dates";
 import { holidayOn } from "../../lib/holidays";
+import { filled } from "../../lib/colors";
 import { LEAVE_TYPES, SHIFT_TYPES, workOn } from "../../lib/work";
 import { LEAVE_ICONS, SHIFT_ICONS } from "../ui/icons";
 import type { LeaveType } from "../../lib/types";
@@ -110,18 +111,12 @@ function Chip({ s, personaId, item }: { s: AppState; personaId: string; item: { 
   );
 }
 
-function ItemLine({ it, t }: { it: CalItem; t: Theme }) {
+function ItemLine({ it }: { it: CalItem; t?: Theme }) {
   const base: CSSProperties = { display: "flex", alignItems: "center", gap: 3, height: 13, fontSize: 9.5, lineHeight: "13px", overflow: "hidden", whiteSpace: "nowrap", borderRadius: 3 };
-  if (it.allDay)
-    return (
-      <div style={{ ...base, padding: "0 3px", background: it.color + "2e", boxShadow: `inset 2px 0 0 ${it.color}`, color: t.text }}>
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{it.title}</span>
-      </div>
-    );
+  // Encadré plein, comme à l'écran.
   return (
-    <div style={{ ...base, color: t.text }}>
-      <span style={{ width: 5, height: 5, borderRadius: 9, background: it.color, flexShrink: 0 }} />
-      <span style={{ color: t.muted, flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{hhmm(it.start)}</span>
+    <div style={{ ...base, padding: "0 4px", fontWeight: 500, ...filled(it.color) }}>
+      {!it.allDay && <span style={{ opacity: 0.8, flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{hhmm(it.start)}</span>}
       <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{it.title}</span>
     </div>
   );
@@ -244,9 +239,9 @@ function WeekPage({ s, plugins, monday, opts, t }: { s: AppState; plugins: Plugi
                 </div>
               )}
               {shown.map((it) => (
-                <div key={it.id} style={{ borderLeft: `3px solid ${it.color}`, background: it.color + "1f", borderRadius: 4, padding: "3px 5px", fontSize: 10, lineHeight: 1.25, height: 26, overflow: "hidden" }}>
+                <div key={it.id} style={{ ...filled(it.color), borderRadius: 4, padding: "3px 6px", fontSize: 10, lineHeight: 1.25, height: 26, overflow: "hidden" }}>
                   <div style={{ fontWeight: 600, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{it.title}</div>
-                  <div style={{ color: t.muted, fontSize: 9 }}>{it.allDay ? "Journée" : `${hhmm(it.start)}–${hhmm(it.end)}`}</div>
+                  <div style={{ opacity: 0.8, fontSize: 9 }}>{it.allDay ? "Journée" : `${hhmm(it.start)}–${hhmm(it.end)}`}</div>
                 </div>
               ))}
               {shown.length < list.length && <div style={{ fontSize: 9.5, color: t.muted }}>+{list.length - shown.length} autres</div>}

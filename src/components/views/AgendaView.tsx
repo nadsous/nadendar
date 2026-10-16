@@ -1,3 +1,4 @@
+import { filled as fillBox } from "../../lib/colors";
 import clsx from "clsx";
 import { addDays, isSameDay } from "date-fns";
 import { motion } from "framer-motion";
@@ -59,15 +60,14 @@ export function AgendaView() {
                 {list.map((it) => {
                   const I = it.icon;
                   return (
-                    <button key={it.id} onClick={() => openItem(it)} className="flex items-center gap-2.5 rounded-lg border border-line bg-base/50 px-2.5 py-2 text-left hover:border-line2 cursor-pointer">
-                      <span className="h-8 w-1 rounded-full" style={{ background: it.color }} />
-                      {I && <I size={15} color={it.color} />}
+                    <button key={it.id} onClick={() => openItem(it)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-[filter] hover:brightness-110 cursor-pointer" style={fillBox(it.color)}>
+                      {I && <I size={15} className="shrink-0" />}
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-[13.5px] text-bright">{it.title}</div>
-                        <div className="text-[11.5px] text-muted">
+                        <div className="truncate text-[13.5px] font-semibold">{it.title}</div>
+                        <div className="text-[11.5px] opacity-80">
                           {it.allDay ? "Toute la journée" : `${hhmm(it.start)} – ${hhmm(it.end)}`}
                           {it.meta ? ` · ${it.meta}` : ""}
-                          {it.warning ? <span className="text-bad"> · ⚠ {it.warning}</span> : null}
+                          {it.warning ? <span className="font-semibold"> · ⚠ {it.warning}</span> : null}
                         </div>
                       </div>
                       <div className="flex -space-x-1.5">

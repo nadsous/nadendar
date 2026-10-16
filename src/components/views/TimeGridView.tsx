@@ -1,3 +1,4 @@
+import { filled } from "../../lib/colors";
 import clsx from "clsx";
 import { addDays, differenceInMinutes, isSameDay } from "date-fns";
 import { motion } from "framer-motion";
@@ -203,10 +204,9 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
           {days.map((d) => {
             const isToday = isSameDay(d, now);
             const placed = layout(timed, d);
-            // Couloirs à gauche pour les postes / cours, un par persona.
+            // Postes et cours : une colonne remplie par persona, sur toute la largeur du jour.
             const subtle = layout(timedSubtle, d);
             const lanes = [...new Set(subtle.flatMap((p) => p.item.personaIds))];
-            const laneW = mode === "day" ? 10 : 6;
             const shades = shadePlugins.flatMap((p) => p.shade!(d, state));
             return (
               <div
@@ -230,6 +230,7 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
                 ))}
                 {subtle.map((p) => {
                   const lane = Math.max(0, lanes.indexOf(p.item.personaIds[0]));
+                  const n = Math.max(1, lanes.length);
                   const I = p.item.icon;
                   const persona = state.personas.find((x) => x.id === p.item.personaIds[0]);
                   return (
@@ -237,33 +238,31 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
                       key={p.item.id}
                       title={`${p.item.title} · ${hhmm(p.item.start)}–${hhmm(p.item.end)}`}
                       onClick={() => openItem(p.item)}
-                      className="absolute rounded-full cursor-pointer"
-                      style={{ top: p.top, height: p.height, left: 2 + lane * (laneW + 2), width: laneW, background: p.item.color + "aa" }}
+                      className="absolute overflow-hidden rounded-md px-1 pt-0.5 cursor-pointer"
+                      style={{
+                        top: p.top,
+                        height: p.height,
+                        left: `calc(${(lane / n) * 100}% + 1px)`,
+                        width: `calc(${100 / n}% - 2px)`,
+                        // Zone remplie (teinte légère) : les événements restent lisibles par-dessus.
+                        background: p.item.color + "2b",
+                        color: p.item.color,
+                      }}
                     >
-                      {mode === "day" && I && p.height > 40 && (
-                        <span className="absolute left-1/2 top-1 -translate-x-1/2">
-                          <I size={8} color="#111" strokeWidth={3} />
-                        </span>
-                      )}
-                      {persona && mode === "day" && p.height > 60 && (
-                        <span className="absolute bottom-1 left-1/2 -translate-x-1/2">
-                          <Avatar persona={persona} size={9} />
-                        </span>
+                      {p.height > 16 && (
+                        <div className="flex min-w-0 items-center gap-1 text-[10px] font-semibold leading-[14px]">
+                          {persona && <Avatar persona={persona} size={12} />}
+                          {I && <I size={10} strokeWidth={2.6} className="shrink-0" />}
+                          {(mode === "day" || n <= 2) && <span className="truncate">{p.item.title}</span>}
+                        </div>
                       )}
                     </div>
                   );
                 })}
-                {/* Postes en libellé dans la vue jour */}
-                {mode === "day" &&
-                  subtle.map((p, i) => (
-                    <div key={"l" + p.item.id} className="pointer-events-none absolute text-[10.5px] font-medium" style={{ top: p.top + 2, left: lanes.length * (laneW + 2) + 6 + (i % 2) * 2, color: p.item.color }}>
-                      {p.height > 18 ? p.item.title : ""}
-                    </div>
-                  ))}
                 {placed.map((p) => {
                   const it = p.item;
                   const I = it.icon;
-                  const offset = lanes.length * (laneW + 2) + 4;
+                  const offset = 3;
                   const editable = !!it.event && !it.event.recurrence;
                   return (
                     <motion.div
@@ -293,17 +292,16 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
                         height: Math.max(18, p.height - 2),
                         left: `calc(${offset}px + (100% - ${offset + 3}px) * ${p.col / p.cols})`,
                         width: `calc((100% - ${offset + 3}px) / ${p.cols} - 2px)`,
-                        background: `linear-gradient(180deg, ${it.color}38, ${it.color}22)`,
-                        borderLeft: `3px solid ${it.color}`,
+                        ...filled(it.color),
                       }}
                     >
-                      <div className="flex items-center gap-1 font-medium text-bright">
-                        {I && <I size={11} color={it.color} className="shrink-0" />}
+                      <div className="flex items-center gap-1 font-semibold">
+                        {I && <I size={11} className="shrink-0" />}
                         <span className="truncate">{it.title}</span>
-                        {it.warning && <AlertTriangle size={11} className="shrink-0 text-bad" />}
+                        {it.warning && <AlertTriangle size={11} strokeWidth={2.6} className="shrink-0" />}
                       </div>
                       {p.height > 32 && (
-                        <div className="truncate text-[10.5px] text-muted tabular">
+                        <div className="truncate text-[10.5px] tabular opacity-85">
                           {hhmm(it.start)}–{hhmm(it.end)}
                           {it.meta ? ` · ${it.meta}` : ""}
                         </div>

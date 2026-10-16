@@ -1,3 +1,4 @@
+import { filled } from "../../lib/colors";
 import clsx from "clsx";
 import { addDays, differenceInMinutes, isSameDay, isSameMonth } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
@@ -342,15 +343,15 @@ function MobileDayList({ dayK, list, chips, badges }: { dayK: string; list: CalI
                 <button
                   key={it.id}
                   onClick={() => openItem(it)}
-                  className="flex items-center gap-2.5 rounded-xl border border-line bg-base/50 px-2.5 py-2 text-left active:scale-[0.99] cursor-pointer"
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left active:scale-[0.99] cursor-pointer"
+                  style={filled(it.color)}
                 >
-                  <span className="h-8 w-1 shrink-0 rounded-full" style={{ background: it.color }} />
-                  {I && <I size={15} color={it.color} className="shrink-0" />}
+                  {I && <I size={15} className="shrink-0" />}
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[14px] text-bright">{it.title}</div>
-                    <div className="text-[12px] text-muted">
+                    <div className="truncate text-[14px] font-semibold">{it.title}</div>
+                    <div className="text-[12px] opacity-80">
                       {it.allDay ? "Toute la journée" : `${fmt(it.start, "HH:mm")} – ${fmt(it.end, "HH:mm")}`}
-                      {it.warning ? <span className="text-bad"> · ⚠ {it.warning}</span> : null}
+                      {it.warning ? <span className="font-semibold"> · ⚠ {it.warning}</span> : null}
                     </div>
                   </div>
                 </button>

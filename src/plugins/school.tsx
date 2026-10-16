@@ -1,3 +1,4 @@
+import { filled } from "../lib/colors";
 import { addDays } from "date-fns";
 import { Backpack, Plus, Trash2 } from "lucide-react";
 import { useEffect } from "react";
@@ -96,18 +97,18 @@ function PersonaSection({ persona, onChange }: { persona: Persona; onChange: (p:
               </div>
               <div className="grid gap-1">
                 {slots.map((s) => (
-                  <div key={s.id} className="rounded-lg p-1.5" style={{ background: s.color + "1c", borderLeft: `3px solid ${s.color}` }}>
+                  <div key={s.id} className="rounded-lg p-1.5" style={filled(s.color)}>
                     <div className="flex items-center gap-1">
                       <input
-                        className="min-w-0 flex-1 bg-transparent text-[12px] text-bright outline-none"
+                        className="min-w-0 flex-1 bg-transparent text-[12px] font-semibold text-inherit outline-none"
                         value={s.subject}
                         onChange={(e) => setSlot(s.id, { subject: e.target.value })}
                       />
-                      <button className="text-faint hover:text-bad cursor-pointer" onClick={() => set({ timetable: sc.timetable.filter((x) => x.id !== s.id) })} aria-label="Supprimer">
+                      <button className="opacity-60 hover:opacity-100 cursor-pointer" onClick={() => set({ timetable: sc.timetable.filter((x) => x.id !== s.id) })} aria-label="Supprimer">
                         <Trash2 size={11} />
                       </button>
                     </div>
-                    <div className="flex items-center gap-1 text-[11px] text-muted">
+                    <div className="flex items-center gap-1 text-[11px] opacity-85">
                       <input type="time" className="bg-transparent outline-none tabular" value={s.start} onChange={(e) => setSlot(s.id, { start: e.target.value })} />
                       –
                       <input type="time" className="bg-transparent outline-none tabular" value={s.end} onChange={(e) => setSlot(s.id, { end: e.target.value })} />

@@ -1,3 +1,4 @@
+import { filled } from "../../lib/colors";
 import clsx from "clsx";
 import { AlertTriangle, Repeat } from "lucide-react";
 import { memo } from "react";
@@ -101,31 +102,30 @@ export function ItemRow({ item, onOpen, showTime = true, large }: { item: CalIte
       }}
       title={`${item.title}${item.allDay ? "" : ` · ${hhmm(item.start)}–${hhmm(item.end)}`}${item.warning ? `\n⚠ ${item.warning}` : ""}`}
       className={clsx(
-        "group flex min-w-0 items-center gap-1 rounded-[5px] px-1 transition-colors",
+        "group flex min-w-0 items-center gap-1 rounded-[5px] px-1.5 font-medium transition-[filter] hover:brightness-110",
         large ? "py-[3px] text-[12.5px] leading-[18px]" : "py-[1px] text-[11.5px] leading-[16px]",
         onOpen && "cursor-pointer",
-        item.allDay ? "text-bright" : "text-fg hover:bg-elev",
       )}
-      style={item.allDay ? { background: item.color + "2e", boxShadow: `inset 2px 0 0 ${item.color}` } : undefined}
+      // Encadré entièrement rempli de la couleur de l'élément (pas de liseré).
+      style={filled(item.color)}
     >
-      {!item.allDay && <span className={clsx("h-[6px] w-[6px] shrink-0 rounded-full", large && "self-start mt-[4px]")} style={{ background: item.color }} />}
-      {I && item.allDay && <I size={11} color={item.color} className="shrink-0" />}
+      {I && <I size={11} className={clsx("shrink-0", large && !item.allDay && "self-start mt-[3px]")} />}
       {large && !item.allDay ? (
         // Grande case : l'heure au-dessus, le titre en entier sur deux lignes.
         <span className="flex min-w-0 flex-col">
-          <span className="text-[10.5px] leading-[13px] tabular text-muted">
+          <span className="text-[10.5px] font-normal leading-[13px] tabular opacity-80">
             {hhmm(item.start)}–{hhmm(item.end)}
           </span>
           <span className="line-clamp-2 break-words">{item.title}</span>
         </span>
       ) : (
         <>
-          {showTime && !item.allDay && <span className="shrink-0 tabular text-muted">{hhmm(item.start)}</span>}
+          {showTime && !item.allDay && <span className="shrink-0 font-normal tabular opacity-80">{hhmm(item.start)}</span>}
           <span className={large ? "line-clamp-2 min-w-0 break-words" : "truncate"}>{item.title}</span>
         </>
       )}
-      {item.event?.recurrence && <Repeat size={9} className="shrink-0 text-faint" />}
-      {item.warning && <AlertTriangle size={10} className="shrink-0 text-bad" />}
+      {item.event?.recurrence && <Repeat size={9} className="shrink-0 opacity-70" />}
+      {item.warning && <AlertTriangle size={10} strokeWidth={2.6} className="shrink-0" />}
       {p && item.personaIds.length > 0 && !item.allDay && (
         <span className="ml-auto hidden xl:block">
           <Avatar persona={p} size={13} />
