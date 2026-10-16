@@ -51,6 +51,7 @@ function PlanningView() {
   const setUI = useApp((s) => s.setUI);
   const [sel, setSel] = useState<{ pid: string; a: number; b: number } | null>(null);
   const [leaveDraft, setLeaveDraft] = useState<Omit<Leave, "id"> | null>(null);
+  const [tapStart, setTapStart] = useState<{ pid: string; i: number } | null>(null);
   const add = useApp((s) => s.add);
 
   const anchor = new Date(cursor);
@@ -84,7 +85,7 @@ function PlanningView() {
   return (
     <div className="flex h-full flex-col overflow-hidden" onMouseUp={finishSel} onMouseLeave={() => setSel(null)}>
       <div className="flex items-center gap-3 border-b border-line px-4 py-2.5 text-[12px] text-muted">
-        <span className="font-medium text-fg">Glisser sur une ligne pour poser des congés.</span>
+        <span className="font-medium text-fg">Glisser (ou toucher deux jours) sur une ligne pour poser des congés.</span>
         <div className="ml-auto hidden md:flex flex-wrap items-center gap-3">
           {SHIFT_TYPES.filter((s) => !s.code.endsWith("12")).map((s) => {
             const I = SHIFT_ICONS[s.icon];
@@ -100,7 +101,7 @@ function PlanningView() {
         <table className="w-max min-w-full border-separate border-spacing-0 text-[12px]">
           <thead className="sticky top-0 z-10 bg-panel">
             <tr>
-              <th className="sticky left-0 z-20 bg-panel px-3 py-2 text-left font-medium text-muted min-w-[170px]">Persona</th>
+              <th className="sticky left-0 z-20 bg-panel px-3 py-2 text-left font-medium text-muted min-w-[104px] sm:min-w-[170px]">Persona</th>
               {days.map((d) => {
                 const hol = holidayOn(d);
                 return (
@@ -143,7 +144,7 @@ function PlanningView() {
                       <Avatar persona={p} size={26} />
                       <span className="text-left">
                         <span className="block text-[13px] text-bright">{p.name}</span>
-                        <span className="block text-[11px] text-faint">{patterns.find((x) => x.personaId === p.id)?.name ?? "—"}</span>
+                        <span className="hidden sm:block text-[11px] text-faint">{patterns.find((x) => x.personaId === p.id)?.name ?? "—"}</span>
                       </span>
                     </button>
                   </td>
@@ -157,13 +158,22 @@ function PlanningView() {
                         key={i}
                         title={info ? `${fmt(d, "EEE d MMM")} — ${info.label}` : undefined}
                         onMouseDown={() => setSel({ pid: p.id, a: i, b: i })}
+                        onTouchEnd={(e) => {
+                          e.preventDefault();
+                          if (tapStart && tapStart.pid === p.id) {
+                            const a = Math.min(tapStart.i, i);
+                            const b = Math.max(tapStart.i, i);
+                            setLeaveDraft({ personaId: p.id, type: "CP", start: dayKey(days[a]), end: dayKey(days[b]) });
+                            setTapStart(null);
+                          } else setTapStart({ pid: p.id, i });
+                        }}
                         onMouseEnter={() => sel && sel.pid === p.id && setSel({ ...sel, b: i })}
                         className={clsx("border-t border-line p-[3px] cursor-cell", isWeekend(d) && "bg-tint")}
                       >
                         <div
                           className={clsx(
                             "grid h-7 w-7 place-items-center rounded-md transition-transform",
-                            inSel && "ring-2 ring-brand scale-105",
+                            (inSel || (tapStart?.pid === p.id && tapStart.i === i)) && "ring-2 ring-brand scale-105",
                             w?.shift?.off && !w.leave && "opacity-35",
                           )}
                           style={info ? { background: info.color + (w?.leave ? "33" : "22") } : undefined}

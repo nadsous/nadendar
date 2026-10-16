@@ -99,7 +99,7 @@ function GanttView() {
   return (
     <div className="flex h-full overflow-hidden">
       {/* Colonne des noms */}
-      <div className="w-[260px] shrink-0 border-r border-line overflow-y-auto" onScroll={(e) => scroller.current && (scroller.current.scrollTop = e.currentTarget.scrollTop)}>
+      <div className="w-[150px] sm:w-[260px] shrink-0 border-r border-line overflow-y-auto" onScroll={(e) => scroller.current && (scroller.current.scrollTop = e.currentTarget.scrollTop)}>
         <div className="sticky top-0 z-10 flex h-[46px] items-center gap-2 border-b border-line bg-panel px-3">
           <span className="flex-1 text-[12px] font-medium text-muted">Projets & tâches</span>
           <Button size="sm" icon={Plus} onClick={newProject}>
@@ -132,7 +132,7 @@ function GanttView() {
           ) : (
             <div key={r.t.id} className={clsx("group flex items-center gap-1.5 pl-7 pr-3", linking === r.t.id && "bg-sel")} style={{ height: ROW_H }}>
               <input className="min-w-0 flex-1 bg-transparent text-[12.5px] text-fg outline-none" value={r.t.name} onChange={(e) => setTask(r.p, r.t.id, { name: e.target.value })} />
-              <div className="w-[70px] opacity-60 group-hover:opacity-100">
+              <div className="hidden sm:block w-[70px] opacity-60 group-hover:opacity-100">
                 <PersonaSelect value={r.t.personaId} onChange={(personaId) => setTask(r.p, r.t.id, { personaId })} placeholder="—" />
               </div>
               <button className={clsx("cursor-pointer", linking ? "text-brand" : "text-faint opacity-0 group-hover:opacity-100 hover:text-bright")} title="Lier : cliquer ici puis sur la tâche qui doit finir avant" onClick={() => setLinking(linking === r.t.id ? null : r.t.id)}>
@@ -218,6 +218,8 @@ function GanttView() {
                     setLinking(null);
                     return;
                   }
+                  // Au doigt, on laisse défiler la frise ; le glisser se fait à la souris ou au stylet.
+                  if (e.pointerType === "touch") return;
                   const rect = e.currentTarget.getBoundingClientRect();
                   const mode = e.clientX - rect.left < 8 ? "l" : rect.right - e.clientX < 8 ? "r" : "move";
                   setDrag({ pid: r.p.id, tid: r.t.id, mode, x0: e.clientX, start: r.t.start, end: r.t.end });

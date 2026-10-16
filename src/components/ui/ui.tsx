@@ -237,8 +237,8 @@ export function Modal({
               <h2 className="flex-1 text-[15px] font-semibold text-bright">{title}</h2>
               <IconBtn icon={X} label="Fermer" onClick={onClose} />
             </header>
-            <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-            {footer && <footer className="flex items-center gap-2 border-t border-line px-5 py-3 safe-bottom">{footer}</footer>}
+            <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-5">{children}</div>
+            {footer && <footer className="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3 sm:px-5 safe-bottom">{footer}</footer>}
           </motion.div>
         </motion.div>
       )}

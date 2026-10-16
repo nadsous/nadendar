@@ -146,9 +146,9 @@ export function EventEditor() {
             <button
               key={k.id}
               onClick={() => set({ kind: k.id, meeting: k.id === "meeting" || k.id === "appointment" ? ev.meeting ?? { provider: k.id === "appointment" ? "doctolib" : "meet" } : ev.meeting })}
-              className={clsx("flex items-center justify-center gap-1.5 rounded-lg border py-2 text-[12.5px] transition-colors cursor-pointer", ev.kind === k.id ? "border-brand/60 bg-sel text-bright" : "border-line text-muted hover:text-fg")}
+              className={clsx("flex flex-col items-center justify-center gap-0.5 rounded-lg border py-1.5 text-[10.5px] transition-colors cursor-pointer sm:flex-row sm:gap-1.5 sm:py-2 sm:text-[12.5px]", ev.kind === k.id ? "border-brand/60 bg-sel text-bright" : "border-line text-muted hover:text-fg")}
             >
-              <k.icon size={14} /> <span className="hidden sm:inline">{k.label}</span>
+              <k.icon size={14} /> <span>{k.label}</span>
             </button>
           ))}
         </div>

@@ -3,12 +3,14 @@ import { addDays, differenceInMinutes, isSameDay } from "date-fns";
 import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { cap, dayKey, fmt, hhmm, isoLocal, weekDays } from "../../lib/dates";
+import { cap, dayKey, fmt, hhmm, isoLocal } from "../../lib/dates";
+import { useMobile, weekSpan, weekStart } from "../../lib/useMobile";
 import { collectBadges, collectChips, useCalendarData } from "../../plugins/registry";
 import type { CalItem } from "../../plugins/types";
 import { useApp } from "../../store/store";
 import { Avatar } from "../ui/Avatar";
 import { Badges, Chips, ItemRow, newEventAt, openItem } from "./shared";
+import { step } from "../Shell";
 
 const HOUR = 52;
 const SNAP = 15;
@@ -66,7 +68,13 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
   const update = useApp((s) => s.update);
   const anchor = new Date(cursor);
   anchor.setHours(0, 0, 0, 0);
-  const days = useMemo(() => (mode === "week" ? weekDays(anchor) : [anchor]), [mode, anchor.getTime()]); // eslint-disable-line react-hooks/exhaustive-deps
+  const mobile = useMobile();
+  // Sur téléphone, la « semaine » montre 3 jours à partir du jour courant.
+  const days = useMemo(() => {
+    if (mode === "day") return [anchor];
+    const s = weekStart(cursor);
+    return Array.from({ length: weekSpan() }, (_, i) => addDays(s, i));
+  }, [mode, anchor.getTime(), mobile]); // eslint-disable-line react-hooks/exhaustive-deps
   const from = days[0];
   const to = addDays(days[days.length - 1], 1);
   const { items, plugins, state } = useCalendarData(from, to);
@@ -74,6 +82,8 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
   const [now, setNow] = useState(new Date());
   const [drag, setDrag] = useState<Drag | null>(null);
   const [ghost, setGhost] = useState<{ id: string; start: Date; end: Date } | null>(null);
+  // Au doigt, un appui ouvre l'élément : on ne le déplace pas, pour ne pas gêner le défilement.
+  const touched = useRef(false);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 60000);
@@ -133,21 +143,31 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
 
   const nowTop = (now.getHours() * 60 + now.getMinutes()) / 60 * HOUR;
 
+  const gutter = mobile ? "w-10" : "w-14";
+
   return (
-    <div className="flex h-full flex-col">
+    <motion.div
+      className="flex h-full flex-col"
+      style={{ touchAction: "pan-y" }}
+      onPanEnd={(_, info) => {
+        // Glisser à gauche / à droite : jours suivants / précédents.
+        if (drag || Math.abs(info.offset.x) < 70 || Math.abs(info.offset.x) < Math.abs(info.offset.y) * 1.5) return;
+        setUI({ cursor: step(mode, cursor, info.offset.x < 0 ? 1 : -1) });
+      }}
+    >
       {/* En-têtes de jours */}
       <div className="flex border-b border-line pr-2">
-        <div className="w-14 shrink-0" />
+        <div className={clsx(gutter, "shrink-0")} />
         {days.map((d) => {
           const isToday = isSameDay(d, now);
           return (
-            <div key={d.getTime()} className="flex min-w-0 flex-1 flex-col gap-1 border-l border-line px-2 py-2" onClick={() => setUI({ selectedDay: dayKey(d) })}>
-              <div className="flex items-center gap-1.5">
+            <div key={d.getTime()} className={clsx("flex min-w-0 flex-1 flex-col gap-1 border-l border-line py-2", mobile ? "px-1" : "px-2")} onClick={() => setUI({ selectedDay: dayKey(d) })}>
+              <div className={clsx("flex items-center gap-1.5", mobile && "flex-wrap gap-x-1 gap-y-0.5")}>
                 <span className={clsx("text-[11.5px] uppercase tracking-wider", isToday ? "text-brand" : "text-muted")}>{fmt(d, "EEE")}</span>
                 <span className={clsx("grid h-7 min-w-7 place-items-center rounded-lg px-1 text-[15px] font-semibold tabular", isToday ? "bg-brand text-on-brand" : "text-bright")}>{d.getDate()}</span>
                 {mode === "day" && <span className="text-[13px] text-muted">{cap(fmt(d, "MMMM yyyy"))}</span>}
                 <div className="min-w-0 flex-1">
-                  <Badges badges={collectBadges(d, state, plugins)} max={mode === "day" ? 8 : 3} />
+                  <Badges badges={collectBadges(d, state, plugins)} max={mode === "day" ? 8 : mobile ? 2 : 3} />
                 </div>
               </div>
               <Chips chips={collectChips(d, state, plugins)} />
@@ -158,7 +178,7 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
       {/* Journée entière */}
       {allDay.length > 0 && (
         <div className="flex max-h-[96px] overflow-y-auto border-b border-line pr-2">
-          <div className="w-14 shrink-0 py-1 pr-2 text-right text-[10.5px] text-faint">jour</div>
+          <div className={clsx(gutter, "shrink-0 py-1 pr-2 text-right text-[10.5px] text-faint")}>{mobile ? "" : "jour"}</div>
           {days.map((d) => (
             <div key={d.getTime()} className="flex min-w-0 flex-1 flex-col gap-[2px] border-l border-line p-1">
               {allDay
@@ -173,10 +193,10 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
       {/* Grille horaire */}
       <div ref={scroller} className="relative flex-1 overflow-y-auto">
         <div className="relative flex" style={{ height: HOUR * 24 }}>
-          <div className="w-14 shrink-0">
+          <div className={clsx(gutter, "shrink-0")}>
             {Array.from({ length: 24 }, (_, h) => (
-              <div key={h} className="relative pr-2 text-right text-[10.5px] tabular text-faint" style={{ height: HOUR }}>
-                {h > 0 && <span className="-translate-y-1/2 inline-block">{String(h).padStart(2, "0")}:00</span>}
+              <div key={h} className="relative pr-1.5 text-right text-[10.5px] tabular text-faint" style={{ height: HOUR }}>
+                {h > 0 && <span className="-translate-y-1/2 inline-block">{mobile ? `${h}h` : `${String(h).padStart(2, "0")}:00`}</span>}
               </div>
             ))}
           </div>
@@ -252,7 +272,8 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
                       initial={{ opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
                       onPointerDown={(e) => {
-                        if (!editable) return;
+                        touched.current = e.pointerType === "touch";
+                        if (!editable || touched.current) return;
                         e.stopPropagation();
                         const col = e.currentTarget.parentElement!.getBoundingClientRect();
                         const isResize = (e.target as HTMLElement).dataset.resize === "1";
@@ -260,7 +281,7 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!editable) openItem(it);
+                        if (!editable || touched.current) openItem(it);
                       }}
                       className={clsx(
                         "absolute overflow-hidden rounded-lg px-1.5 py-1 text-[11.5px] leading-tight shadow-md shadow-black/30",
@@ -310,7 +331,7 @@ export function TimeGridView({ mode }: { mode: "week" | "day" }) {
           })}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

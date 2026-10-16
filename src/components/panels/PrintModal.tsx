@@ -11,7 +11,7 @@ import { PAGE_H, PAGE_W, PrintSheet, type PrintKind, type PrintOptions } from ".
 import { Button, Field, Modal, PersonaPicker, Toggle } from "../ui/ui";
 
 const isAndroid = () => /android/i.test(navigator.userAgent);
-const SCALE = 0.42;
+
 
 export function PrintModal() {
   const open = useApp((s) => s.ui.modal === "print");
@@ -29,6 +29,8 @@ export function PrintModal() {
   const [busy, setBusy] = useState<string | null>(null);
   const [printing, setPrinting] = useState(false);
   const preview = useRef<HTMLDivElement>(null);
+  // L'aperçu se cale sur la largeur disponible (téléphone compris).
+  const SCALE = Math.min(0.42, (window.innerWidth - 72) / PAGE_W);
 
   // À l'ouverture : période affichée et personas visibles.
   useEffect(() => {
@@ -168,7 +170,7 @@ export function PrintModal() {
             </p>
           </div>
           {/* Aperçu réduit ; ces mêmes pages servent au PDF. */}
-          <div className="max-h-[62vh] overflow-auto rounded-xl border border-line bg-base p-4">
+          <div className="max-h-[50vh] md:max-h-[62vh] overflow-auto rounded-xl border border-line bg-base p-2 md:p-4">
             <div style={{ width: PAGE_W * SCALE, height: (PAGE_H * opts.count + 24 * (opts.count - 1)) * SCALE }}>
               <div ref={preview} style={{ transform: `scale(${SCALE})`, transformOrigin: "top left", width: PAGE_W }}>
                 {open && <PrintSheet s={state} opts={opts} />}

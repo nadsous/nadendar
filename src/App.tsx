@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { dayKey, hhmm } from "./lib/dates";
 import { applyTheme, notify } from "./lib/platform";
+import { useMobile } from "./lib/useMobile";
 import { expand } from "./lib/recurrence";
 import { PLUGINS, useEnabledPlugins } from "./plugins/registry";
 import type { Plugin } from "./plugins/types";
@@ -27,15 +28,6 @@ function Boot({ plugin }: { plugin: Plugin }) {
   return null;
 }
 
-function useMobile() {
-  const [m, setM] = useState(() => window.innerWidth < 820);
-  useEffect(() => {
-    const h = () => setM(window.innerWidth < 820);
-    window.addEventListener("resize", h);
-    return () => window.removeEventListener("resize", h);
-  }, []);
-  return m;
-}
 
 /** Rappels : vérifie chaque 30 s les événements avec un rappel. */
 function useReminders() {

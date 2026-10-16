@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { addDays, addMonths, addWeeks, isSameDay, isSameMonth, startOfWeek } from "date-fns";
+import { addDays, addMonths, addWeeks, isSameDay, isSameMonth } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   CalendarDays,
@@ -26,7 +26,8 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import logo from "../assets/logo.svg";
-import { cap, dayKey, fmt, fromKey, monthGrid, WEEK } from "../lib/dates";
+import { cap, dayKey, fmt, fromKey, monthGrid } from "../lib/dates";
+import { isMobileWidth, weekSpan, weekStart } from "../lib/useMobile";
 import { collectBadges, collectChips, useCalendarData, useEnabledPlugins } from "../plugins/registry";
 import { useApp } from "../store/store";
 import { Avatar } from "./ui/Avatar";
@@ -48,7 +49,7 @@ export function useViews() {
 
 export function step(view: string, cursor: number, n: number) {
   const d = new Date(cursor);
-  if (view === "week") return addWeeks(d, n).getTime();
+  if (view === "week") return addDays(d, n * weekSpan()).getTime();
   if (view === "day") return addDays(d, n).getTime();
   if (view === "agenda") return addWeeks(d, n).getTime();
   return addMonths(d, n).getTime();
@@ -57,11 +58,12 @@ export function step(view: string, cursor: number, n: number) {
 function title(view: string, cursor: number) {
   const d = new Date(cursor);
   if (view === "week") {
-    const s = startOfWeek(d, WEEK);
-    const e = addDays(s, 6);
+    const s = weekStart(cursor);
+    const e = addDays(s, weekSpan() - 1);
+    if (isMobileWidth()) return s.getMonth() === e.getMonth() ? `${s.getDate()} – ${fmt(e, "d MMM")}` : `${fmt(s, "d MMM")} – ${fmt(e, "d MMM")}`;
     return s.getMonth() === e.getMonth() ? `${s.getDate()} – ${e.getDate()} ${fmt(e, "MMMM yyyy")}` : `${fmt(s, "d MMM")} – ${fmt(e, "d MMM yyyy")}`;
   }
-  if (view === "day") return cap(fmt(d, "EEEE d MMMM yyyy"));
+  if (view === "day") return cap(fmt(d, isMobileWidth() ? "EEE d MMM" : "EEEE d MMMM yyyy"));
   if (view === "agenda") return `À partir du ${fmt(d, "d MMMM")}`;
   return cap(fmt(d, "MMMM yyyy"));
 }
@@ -280,6 +282,12 @@ export function LeftPanel() {
             <v.icon size={15} className={view === v.id ? "text-brand" : undefined} /> {v.label}
           </button>
         ))}
+        <button onClick={() => setUI({ modal: "print" })} className="flex items-center gap-2 rounded-lg bg-elev/50 px-2.5 py-2 text-[13px] text-muted cursor-pointer">
+          <Printer size={15} /> Imprimer / PDF
+        </button>
+        <button onClick={() => setUI({ modal: "plugins" })} className="flex items-center gap-2 rounded-lg bg-elev/50 px-2.5 py-2 text-[13px] text-muted cursor-pointer">
+          <Puzzle size={15} /> Plugins
+        </button>
       </div>
       <PersonaList />
       <div className="mt-auto grid gap-1">
