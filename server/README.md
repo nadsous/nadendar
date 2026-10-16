@@ -29,7 +29,7 @@ systemctl list-timers nadendar-sync-backup.timer
 Depuis le PC, à la racine du projet :
 
 ```bash
-bash server/deploy/deploy.sh root@5.45.99.160
+bash server/deploy/deploy.sh root@ton-serveur
 ```
 
 Le script est idempotent : il recopie le code, redémarre le service et vérifie
@@ -41,5 +41,5 @@ copie de sécurité (`nads.site.avant-nadendar.<date>`) et un retour arrière si
 Les sauvegardes restent sur le VPS : pensez à les copier ailleurs (elles sont chiffrées) :
 
 ```bash
-rsync -avz root@5.45.99.160:/var/backups/nadendar-sync/ ./sauvegardes-nadendar/
+rsync -avz root@ton-serveur:/var/backups/nadendar-sync/ ./sauvegardes-nadendar/
 ```

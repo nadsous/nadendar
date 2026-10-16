@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Déploiement depuis le PC : ./server/deploy/deploy.sh root@5.45.99.160
+# Déploiement depuis le PC : ./server/deploy/deploy.sh root@ton-serveur
 # Copie le serveur sur le VPS puis lance install.sh (en root, ou via sudo).
 set -euo pipefail
 TARGET="${1:?usage : deploy.sh utilisateur@serveur}"
