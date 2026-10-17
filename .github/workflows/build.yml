@@ -71,3 +71,59 @@ jobs:
         with:
           name: nadendar-android
           path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+
+  # À chaque tag v*, les installeurs sont publiés dans une Release GitHub.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [desktop, android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: dist }
+      - name: Noms de fichiers lisibles
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          mkdir out
+          cp dist/nadendar-windows/nsis/*.exe "out/Nadendar-${V}-windows-setup.exe"
+          cp dist/nadendar-windows/msi/*.msi "out/Nadendar-${V}-windows.msi"
+          cp dist/nadendar-linux/deb/*.deb "out/Nadendar-${V}-linux-amd64.deb"
+          cp dist/nadendar-linux/appimage/*.AppImage "out/Nadendar-${V}-linux-x86_64.AppImage"
+          cp dist/nadendar-linux/rpm/*.rpm "out/Nadendar-${V}-linux-x86_64.rpm"
+          cp $(find dist/nadendar-android -name '*.apk' | head -1) "out/Nadendar-${V}-android-arm64.apk"
+          ls -la out
+      - name: Publier la release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" out/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Nadendar ${GITHUB_REF_NAME#v}" \
+            --notes-file - <<'NOTES'
+          ## 📥 Quel fichier télécharger ?
+
+          | Appareil | Fichier |
+          |---|---|
+          | **Windows** | `…-windows-setup.exe` (ou `.msi` pour un déploiement en entreprise) |
+          | **Android** (téléphone récent, ARM 64 bits) | `…-android-arm64.apk` |
+          | **Linux** Debian/Ubuntu | `…-linux-amd64.deb` |
+          | **Linux** Fedora/openSUSE | `…-linux-x86_64.rpm` |
+          | **Linux** toute distribution | `…-linux-x86_64.AppImage` (rendre exécutable puis lancer) |
+
+          **Windows** : l'installeur n'est pas encore signé. Si SmartScreen s'affiche, cliquez sur
+          « Informations complémentaires » ▸ « Exécuter quand même ».
+
+          **Android** : ouvrez l'APK sur le téléphone et autorisez l'installation depuis cette source
+          quand Android le demande. C'est une version de test (non optimisée, environ 150 Mo).
+
+          ## ✨ Nouveautés
+
+          - Calendrier Mois, Semaine, Jour, Agenda avec glisser-déposer et récurrences
+          - Personas de la famille avec avatars DiceBear entièrement personnalisables (8 styles)
+          - Plugins : planning de travail (3×8, usine…), congés, école, cycle, météo, lune et soleil,
+            réunions (Meet, Teams, Doctolib), to-do, courses, menus, livraisons, budget, Gantt, mails
+          - Import Google Agenda, Outlook, iCloud (`.ics` ou lien) et export `.ics`
+          - Impression et PDF sans cases coupées, thème clair ou sombre
+          - Partage chiffré de bout en bout entre ordinateur et téléphone (Réglages ▸ Foyer)
+          NOTES
