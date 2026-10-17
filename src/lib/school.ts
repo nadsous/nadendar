@@ -1,4 +1,6 @@
-import type { SchoolZone } from "./types";
+import { addDays, differenceInCalendarDays, startOfWeek } from "date-fns";
+import { dayKey, fromKey, WEEK } from "./dates";
+import type { SchoolSettings, SchoolZone } from "./types";
 
 // Calendrier scolaire officiel (open data de l'Éducation nationale).
 
@@ -41,4 +43,27 @@ function toLocalDay(iso: string, shift: number) {
   d.setHours(d.getHours() + 12);
   d.setDate(d.getDate() + shift);
   return d.toISOString().slice(0, 10);
+}
+
+export const WEEK_LETTERS = ["A", "B", "C", "D"];
+
+/** Semaine de l'alternance (0 = A, 1 = B…) qui contient le jour `d`. */
+export function rotationWeek(sc: SchoolSettings, d: Date, holidays?: SchoolHoliday[]): number {
+  const n = Math.max(1, Math.min(4, sc.rotation ?? 1));
+  if (n === 1) return 0;
+  const mon = startOfWeek(d, WEEK);
+  const anchor = sc.rotationAnchor ? startOfWeek(fromKey(sc.rotationAnchor), WEEK) : mon;
+  let weeks = Math.round(differenceInCalendarDays(mon, anchor) / 7);
+  if (sc.rotationPauses && holidays?.length && weeks !== 0) {
+    // Les semaines entièrement en vacances (lundi → vendredi) ne comptent pas.
+    const [lo, hi] = weeks > 0 ? [anchor, mon] : [mon, anchor];
+    let paused = 0;
+    for (const h of holidays) {
+      let m = startOfWeek(fromKey(h.start), WEEK);
+      if (dayKey(m) < h.start) m = addDays(m, 7);
+      for (; dayKey(addDays(m, 4)) <= h.end; m = addDays(m, 7)) if (m >= lo && m < hi) paused++;
+    }
+    weeks += weeks > 0 ? -paused : paused;
+  }
+  return (((sc.rotationAnchorWeek ?? 0) + weeks) % n + n) % n;
 }

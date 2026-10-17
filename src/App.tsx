@@ -16,6 +16,7 @@ import { PersonaEditor } from "./components/panels/PersonaEditor";
 import { PluginStore } from "./components/panels/PluginStore";
 import { PrintModal } from "./components/panels/PrintModal";
 import { SettingsModal } from "./components/panels/Settings";
+import { UpdateNotice, WhatsNew } from "./components/Updates";
 import { Onboarding } from "./components/Onboarding";
 import { LeftPanel, MobileNav, RightPanel, StatusBar, step, TopBar } from "./components/Shell";
 import { AgendaView } from "./components/views/AgendaView";
@@ -194,6 +195,8 @@ export default function App() {
       <SettingsModal />
       <CommandPalette />
       <PrintModal />
+      <WhatsNew />
+      <UpdateNotice />
     </div>
   );
 }

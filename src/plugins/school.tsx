@@ -1,10 +1,11 @@
 import { filled } from "../lib/colors";
-import { addDays } from "date-fns";
-import { Backpack, Plus, Trash2 } from "lucide-react";
-import { useEffect } from "react";
-import { atTime, dayKey, inRange, isoWeekday, uid } from "../lib/dates";
+import clsx from "clsx";
+import { addDays, addWeeks, startOfWeek } from "date-fns";
+import { Backpack, Copy, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { atTime, dayKey, inRange, isoWeekday, uid, WEEK } from "../lib/dates";
 import { holidayOn } from "../lib/holidays";
-import { fetchSchoolHolidays, type SchoolHoliday } from "../lib/school";
+import { fetchSchoolHolidays, rotationWeek, WEEK_LETTERS, type SchoolHoliday } from "../lib/school";
 import type { Persona, SchoolSettings, SchoolSlot } from "../lib/types";
 import { useApp } from "../store/store";
 import { Button, Field, PALETTE, Toggle } from "../components/ui/ui";
@@ -46,10 +47,42 @@ function PersonaSection({ persona, onChange }: { persona: Persona; onChange: (p:
         <span className="text-[12.5px] text-muted">Activer l'emploi du temps scolaire</span>
       </div>
     );
-  const set = (p: Partial<SchoolSettings>) => onChange({ school: { ...sc, ...p } });
+  return <SchoolEditor sc={sc} onChange={(school) => onChange({ school })} />;
+}
+
+const ROTATIONS = [
+  { n: 1, label: "Toutes pareilles" },
+  { n: 2, label: "A / B" },
+  { n: 3, label: "A / B / C" },
+  { n: 4, label: "A / B / C / D" },
+];
+
+function SchoolEditor({ sc, onChange }: { sc: SchoolSettings; onChange: (s: SchoolSettings) => void }) {
+  const holidays = useApp((s) => s.cache.schoolHolidays?.list);
+  const n = sc.rotation ?? 1;
+  // Semaine affichée dans l'éditeur : -1 = tous les cours.
+  const [tab, setTab] = useState(-1);
+  const week = n > 1 && tab < n ? tab : -1;
+  const thisWeek = rotationWeek(sc, new Date(), holidays);
+  const set = (p: Partial<SchoolSettings>) => onChange({ ...sc, ...p });
+  const visible = (s: SchoolSlot) => week < 0 || !s.weeks || s.weeks.includes(week);
+  const toggleWeek = (s: SchoolSlot, w: number) => {
+    const cur = s.weeks ?? Array.from({ length: n }, (_, i) => i);
+    const next = cur.includes(w) ? cur.filter((x) => x !== w) : [...cur, w].sort();
+    if (!next.length) return;
+    setSlot(s.id, { weeks: next.length >= n ? undefined : next });
+  };
+  const copyWeek = (from: number, to: number) =>
+    set({
+      timetable: [
+        // Les cours propres à la semaine cible sont remplacés.
+        ...sc.timetable.filter((s) => !(s.weeks?.length === 1 && s.weeks[0] === to)),
+        ...sc.timetable.filter((s) => s.weeks?.length === 1 && s.weeks[0] === from).map((s) => ({ ...s, id: uid(), weeks: [to] })),
+      ],
+    });
   const setSlot = (id: string, p: Partial<SchoolSlot>) => set({ timetable: sc.timetable.map((s) => (s.id === id ? { ...s, ...p } : s)) });
   const addSlot = (weekday: number) => {
-    const last = sc.timetable.filter((s) => s.weekday === weekday).sort((a, b) => a.end.localeCompare(b.end)).pop();
+    const last = sc.timetable.filter((s) => s.weekday === weekday && visible(s)).sort((a, b) => a.end.localeCompare(b.end)).pop();
     set({
       timetable: [
         ...sc.timetable,
@@ -60,6 +93,7 @@ function PersonaSection({ persona, onChange }: { persona: Persona; onChange: (p:
           end: last ? addHour(last.end) : "11:30",
           subject: "École",
           color: PALETTE[(sc.timetable.length * 3) % PALETTE.length],
+          weeks: week >= 0 ? [week] : undefined,
         },
       ],
     });
@@ -83,10 +117,83 @@ function PersonaSection({ persona, onChange }: { persona: Persona; onChange: (p:
         <Toggle on={sc.followHolidays} onChange={(v) => set({ followHolidays: v })} />
         <span className="text-[12.5px]">Pas de cours pendant les vacances et les fériés</span>
       </div>
+      <div className="grid gap-2 rounded-xl border border-line bg-base/50 p-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[12.5px] text-muted">Semaines</span>
+          <div className="flex flex-wrap gap-1">
+            {ROTATIONS.map((r) => (
+              <button
+                key={r.n}
+                onClick={() =>
+                  set({
+                    rotation: r.n,
+                    // Première activation : la semaine en cours devient la semaine A.
+                    rotationAnchor: sc.rotationAnchor ?? dayKey(startOfWeek(new Date(), WEEK)),
+                    rotationAnchorWeek: sc.rotationAnchor ? sc.rotationAnchorWeek : 0,
+                  })
+                }
+                className={clsx("rounded-lg px-2.5 py-1 text-[12px] font-medium cursor-pointer transition-colors", n === r.n ? "bg-brand text-on-brand" : "bg-elev text-muted hover:text-bright")}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {n > 1 && (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[12.5px] text-muted">Cette semaine est la semaine</span>
+              <div className="flex gap-1">
+                {WEEK_LETTERS.slice(0, n).map((l, i) => (
+                  <button
+                    key={l}
+                    onClick={() => set({ rotationAnchor: dayKey(startOfWeek(new Date(), WEEK)), rotationAnchorWeek: i })}
+                    className={clsx("h-7 w-7 rounded-lg text-[12.5px] font-semibold cursor-pointer", thisWeek === i ? "bg-brand text-on-brand" : "bg-elev text-muted hover:text-bright")}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+              <span className="text-[11.5px] text-faint">
+                semaine prochaine : {WEEK_LETTERS[rotationWeek(sc, addWeeks(new Date(), 1), holidays)]}
+              </span>
+            </div>
+            <label className="flex items-center gap-3">
+              <Toggle on={!!sc.rotationPauses} onChange={(v) => set({ rotationPauses: v })} />
+              <span className="text-[12.5px]">Les semaines de vacances ne comptent pas dans l'alternance</span>
+            </label>
+          </>
+        )}
+      </div>
+      {n > 1 && (
+        <div className="flex flex-wrap items-center gap-1">
+          <button
+            onClick={() => setTab(-1)}
+            className={clsx("rounded-lg px-2.5 py-1 text-[12px] font-medium cursor-pointer", week < 0 ? "bg-sel text-bright ring-1 ring-brand/60" : "bg-elev text-muted hover:text-bright")}
+          >
+            Tous les cours
+          </button>
+          {WEEK_LETTERS.slice(0, n).map((l, i) => (
+            <button
+              key={l}
+              onClick={() => setTab(i)}
+              className={clsx("rounded-lg px-2.5 py-1 text-[12px] font-medium cursor-pointer", week === i ? "bg-sel text-bright ring-1 ring-brand/60" : "bg-elev text-muted hover:text-bright")}
+            >
+              Semaine {l}
+              {thisWeek === i && <span className="ml-1 text-[10.5px] text-brand">• en cours</span>}
+            </button>
+          ))}
+          {week >= 0 && (
+            <Button size="sm" variant="ghost" icon={Copy} className="ml-auto" onClick={() => copyWeek(week, (week + 1) % n)} title={`Remplace les cours propres à la semaine ${WEEK_LETTERS[(week + 1) % n]}`}>
+              Copier vers {WEEK_LETTERS[(week + 1) % n]}
+            </Button>
+          )}
+        </div>
+      )}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {WEEKDAYS.map((label, i) => {
           const wd = i + 1;
-          const slots = sc.timetable.filter((s) => s.weekday === wd).sort((a, b) => a.start.localeCompare(b.start));
+          const slots = sc.timetable.filter((s) => s.weekday === wd && visible(s)).sort((a, b) => a.start.localeCompare(b.start));
           return (
             <div key={wd} className="rounded-xl border border-line bg-base/50 p-2">
               <div className="mb-1.5 flex items-center justify-between">
@@ -113,6 +220,24 @@ function PersonaSection({ persona, onChange }: { persona: Persona; onChange: (p:
                       –
                       <input type="time" className="bg-transparent outline-none tabular" value={s.end} onChange={(e) => setSlot(s.id, { end: e.target.value })} />
                     </div>
+                    {n > 1 && (
+                      <div className="mt-1 flex gap-0.5" title="Semaines où ce cours a lieu">
+                        {WEEK_LETTERS.slice(0, n).map((l, i) => {
+                          const on = !s.weeks || s.weeks.includes(i);
+                          return (
+                            <button
+                              key={l}
+                              onClick={() => toggleWeek(s, i)}
+                              className={clsx("h-4 w-4 rounded text-[9.5px] font-bold leading-4 cursor-pointer", on ? "bg-black/25" : "opacity-40 ring-1 ring-current")}
+                              aria-label={`Semaine ${l}`}
+                              aria-pressed={on}
+                            >
+                              {l}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -145,11 +270,24 @@ function addHour(t: string) {
 
 function DayDetail({ day }: { day: Date }) {
   const list = useApp((s) => s.cache.schoolHolidays?.list);
+  const personas = useApp((s) => s.personas);
   const h = schoolHolidayOn(dayKey(day), list);
-  if (!h) return null;
+  if (h)
+    return (
+      <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-2.5 py-2 text-[12.5px] text-emerald-300">
+        <Backpack size={14} /> {h.name}
+      </div>
+    );
+  const rot = personas.filter((p) => p.school?.enabled && !p.hidden && (p.school.rotation ?? 1) > 1);
+  if (!rot.length) return null;
   return (
-    <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-2.5 py-2 text-[12.5px] text-emerald-300">
-      <Backpack size={14} /> {h.name}
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-base/60 px-2.5 py-2 text-[12.5px] text-muted">
+      <Backpack size={14} />
+      {rot.map((p) => (
+        <span key={p.id}>
+          {p.name} : <b className="text-fg">semaine {WEEK_LETTERS[rotationWeek(p.school!, day, list)]}</b>
+        </span>
+      ))}
     </div>
   );
 }
@@ -185,8 +323,9 @@ export const schoolPlugin: Plugin = {
       for (let d = from; d < to; d = addDays(d, 1)) {
         if (sc.followHolidays && (holidayOn(d) || schoolHolidayOn(dayKey(d), list))) continue;
         const wd = isoWeekday(d);
+        const week = rotationWeek(sc, d, list);
         for (const slot of sc.timetable) {
-          if (slot.weekday !== wd) continue;
+          if (slot.weekday !== wd || (slot.weeks && !slot.weeks.includes(week))) continue;
           out.push({
             id: `school-${slot.id}-${dayKey(d)}`,
             title: `${p.name} · ${slot.subject}`,

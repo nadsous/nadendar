@@ -1,7 +1,7 @@
 {
   "name": "nadendar",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Nadendar — le calendrier de nads : personas, plannings, plugins.",
   "author": "Nads",
@@ -24,6 +24,8 @@
     "@tauri-apps/api": "^2.8.0",
     "@tauri-apps/plugin-notification": "^2.3.0",
     "@tauri-apps/plugin-opener": "^2.5.0",
+    "@tauri-apps/plugin-process": "^2.4.0",
+    "@tauri-apps/plugin-updater": "^2.14.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.18.2",

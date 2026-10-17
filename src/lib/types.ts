@@ -46,6 +46,8 @@ export interface SchoolSlot {
   end: string;
   subject: string;
   color: string;
+  /** Semaines de l'alternance où le cours a lieu (0 = A, 1 = B…) ; absent = toutes. */
+  weeks?: number[];
 }
 
 export interface SchoolSettings {
@@ -55,6 +57,14 @@ export interface SchoolSettings {
   timetable: SchoolSlot[];
   /** Les vacances scolaires masquent l'emploi du temps. */
   followHolidays: boolean;
+  /** Alternance de semaines : 1 = toutes pareilles, 2 = A/B, 3 = A/B/C, 4 = A/B/C/D. */
+  rotation?: number;
+  /** Lundi de référence de l'alternance… */
+  rotationAnchor?: DayKey;
+  /** …et sa lettre (0 = A, 1 = B…). */
+  rotationAnchorWeek?: number;
+  /** Les semaines entières de vacances ne font pas avancer l'alternance. */
+  rotationPauses?: boolean;
 }
 
 export interface Persona {
@@ -298,6 +308,8 @@ export interface Settings {
   cellSize: CellSize;
   notifications: boolean;
   onboarded: boolean;
+  /** Dernière version dont les nouveautés ont été montrées. */
+  lastSeenVersion?: string;
   /** Catégories masquées à l'impression / en PDF. */
   printHidden?: string[];
 }

@@ -7,6 +7,8 @@ import { searchPlaces } from "../../lib/weather";
 import { exportData, useApp } from "../../store/store";
 import { CELL_SIZES } from "../Shell";
 import { SyncPanel } from "./SyncPanel";
+import { UpdateCheckButton } from "../Updates";
+import { APP_VERSION } from "../../lib/updates";
 import { loadDemo } from "../../store/demo";
 import { Button, Field, Modal, Section, Toggle } from "../ui/ui";
 
@@ -178,6 +180,10 @@ export function SettingsModal() {
             </Button>
           </div>
           {msg && <p className="text-[12px] text-ok">{msg}</p>}
+        </Section>
+        <Section title={`Version ${APP_VERSION}`}>
+          <p className="text-[12.5px] text-muted">Nadendar vérifie seul les nouvelles versions au lancement et prévient quand il y en a une.</p>
+          <UpdateCheckButton />
         </Section>
       </div>
     </Modal>

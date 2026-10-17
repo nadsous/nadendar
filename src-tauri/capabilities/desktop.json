@@ -1,0 +1,8 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "desktop",
+  "description": "Mises à jour automatiques (ordinateur uniquement)",
+  "windows": ["main"],
+  "platforms": ["windows", "linux", "macOS"],
+  "permissions": ["updater:default", "process:allow-restart"]
+}

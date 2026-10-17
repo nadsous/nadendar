@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { Ban, Dices, Glasses, Palette, RotateCcw } from "lucide-react";
-import { useMemo, useState } from "react";
+import { memo, useDeferredValue, useMemo, useState } from "react";
 import { DICE_STYLES, diceUri, genderOpts, partsOf, randomSeed } from "../../lib/avatars";
 import type { AvatarSpec, HairStyle } from "../../lib/types";
 import { AvatarSvg, SKINS } from "../ui/Avatar";
@@ -44,9 +44,11 @@ export function AvatarPreview({ spec, color, onChange }: { spec: AvatarSpec; col
 }
 
 /** Style + toutes les parties personnalisables. */
-export function AvatarCustomizer({ spec, color, onChange }: { spec: AvatarSpec; color: string; onChange: (s: AvatarSpec) => void }) {
+export const AvatarCustomizer = memo(function AvatarCustomizer({ spec, color, onChange }: { spec: AvatarSpec; color: string; onChange: (s: AvatarSpec) => void }) {
   const seed = spec.seed ?? "nadendar";
   const opts = spec.opts ?? {};
+  // Les vignettes (jusqu'à ~80 avatars) se recalculent après le clic, sans bloquer la fiche.
+  const thumbOpts = useDeferredValue(opts);
   const parts = useMemo(() => (isDice(spec) ? partsOf(spec.style!) : { variants: [], colors: [] }), [spec.style]); // eslint-disable-line react-hooks/exhaustive-deps
   const [tab, setTab] = useState<string>("");
   const current = parts.variants.find((v) => v.prop === tab) ?? (tab === "colors" ? null : parts.variants[0]);
@@ -150,7 +152,7 @@ export function AvatarCustomizer({ spec, color, onChange }: { spec: AvatarSpec; 
                   </Thumb>
                 )}
                 {current.options.map((o) => {
-                  const pv = { ...opts, [current.prop]: o, ...(current.probability ? { [current.probability]: 100 } : {}) };
+                  const pv = { ...thumbOpts, [current.prop]: o, ...(current.probability ? { [current.probability]: 100 } : {}) };
                   return (
                     <Thumb
                       key={o}
@@ -169,7 +171,7 @@ export function AvatarCustomizer({ spec, color, onChange }: { spec: AvatarSpec; 
       )}
     </div>
   );
-}
+}, (a, b) => a.spec === b.spec && a.color === b.color);
 
 function StyleChip({ label, active, onClick, children }: { label: string; active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (

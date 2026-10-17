@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { Sparkles, Trash2, UserRound } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { uid } from "../../lib/dates";
 import { genderOpts, randomSeed } from "../../lib/avatars";
 import type { AvatarSpec, Gender, Persona, PersonaRole } from "../../lib/types";
@@ -48,16 +48,38 @@ export function PersonaEditor() {
   }, [editing]);
 
   const exists = personas.some((x) => x.id === p.id);
+  // Un persona existant est enregistré au fil de l'eau (les sections des plugins écrivent aussi
+  // dans d'autres collections), mais regroupé : écrire à chaque frappe recalculait tout le
+  // calendrier et figeait la fiche.
+  const pending = useRef<{ id: string; patch: Partial<Persona> } | null>(null);
+  const timer = useRef<number>(0);
+  const flush = () => {
+    window.clearTimeout(timer.current);
+    const job = pending.current;
+    pending.current = null;
+    if (job) update("personas", job.id, job.patch);
+  };
+  useEffect(() => flush, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Lu par référence : l'éditeur d'avatar mémorisé garde une ancienne version de `set`.
+  const live = useRef({ id: p.id, exists });
+  live.current = { id: p.id, exists };
   const set = (patch: Partial<Persona>) => {
     setP((cur) => ({ ...cur, ...patch }));
-    // Les sections des plugins (planning…) écrivent aussi dans d'autres collections :
-    // on enregistre le persona tout de suite s'il existe déjà.
-    if (exists) update("personas", p.id, patch);
+    const { id, exists: saved } = live.current;
+    if (!saved) return;
+    pending.current = { id, patch: { ...(pending.current?.id === id ? pending.current.patch : {}), ...patch } };
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(flush, 450);
   };
   const setAv = (a: Partial<AvatarSpec>) => set({ avatar: { ...p.avatar, ...a } });
-  const close = () => setUI({ editingPersona: null });
+  const close = () => {
+    flush();
+    setUI({ editingPersona: null });
+  };
   const save = () => {
     const clean = { ...p, name: p.name.trim() || "Sans nom" };
+    pending.current = null;
+    window.clearTimeout(timer.current);
     if (exists) {
       update("personas", p.id, clean);
       close();
@@ -82,6 +104,8 @@ export function PersonaEditor() {
               variant="danger"
               icon={Trash2}
               onClick={() => {
+                pending.current = null;
+                window.clearTimeout(timer.current);
                 remove("personas", p.id);
                 close();
               }}

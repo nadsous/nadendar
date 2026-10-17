@@ -1,6 +1,6 @@
 [package]
 name = "nadendar"
-version = "0.1.0"
+version = "0.1.1"
 description = "Nadendar — le calendrier de nads"
 authors = ["Nads"]
 license = "MIT"
@@ -23,6 +23,11 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 # Récupération des agendas iCal (Google, Outlook, iCloud) sans contrainte CORS.
 ureq = "2"
+
+# Mises à jour automatiques (Windows, Linux) ; Android passe par la page des releases.
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 
 [profile.release]
 codegen-units = 1

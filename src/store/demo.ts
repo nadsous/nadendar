@@ -38,10 +38,12 @@ export function loadDemo() {
     avatar: { gender: "homme", hair: "boucle", glasses: false, beard: false, skin: 4, style: "notionists", seed: "yanis-k", opts: { beardProbability: 0, glassesProbability: 0 } },
     school: {
       enabled: true, level: "5e", establishment: "Collège Victor Hugo", followHolidays: true,
+      rotation: 2, rotationAnchor: dayKey(monday), rotationAnchorWeek: 0,
       timetable: [
         slot(1, "08:00", "10:00", "Maths", "#38bdf8"), slot(1, "10:15", "12:15", "Français", "#f472b6"), slot(1, "14:00", "16:00", "SVT", "#4ade80"),
         slot(2, "08:00", "12:00", "Anglais / Histoire", "#fbbf24"), slot(2, "13:30", "15:30", "EPS", "#fb923c"),
-        slot(3, "08:00", "12:00", "Techno / Arts", "#c084fc"),
+        { ...slot(3, "08:00", "12:00", "Techno / Arts", "#c084fc"), weeks: [0] },
+        { ...slot(3, "09:00", "12:00", "Latin / Musique", "#f59e0b"), weeks: [1] },
         slot(4, "09:00", "12:00", "Physique / Maths", "#38bdf8"), slot(4, "14:00", "17:00", "Espagnol / Musique", "#f43f5e"),
         slot(5, "08:00", "12:00", "Français / Histoire", "#f472b6"), slot(5, "13:30", "15:30", "EPS", "#fb923c"),
       ],
